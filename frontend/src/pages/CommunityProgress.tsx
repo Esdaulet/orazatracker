@@ -6,7 +6,7 @@ import {
   getCachedCommunityProgress,
 } from "../services/communityService";
 import BottomNav from "../components/BottomNav";
-import { Users, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 
 interface CommunityMember {
   userId: string;
@@ -86,8 +86,7 @@ export default function CommunityProgress() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8 text-white">
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <Users size={32} />
+        <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
           Топтың прогресі
         </h1>
         <p className="text-indigo-200">Бүгінгі жетістіктер</p>
