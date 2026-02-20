@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
 import BottomNav from "../components/BottomNav";
+import { ASMA_KAZAKH } from "../data/asmaKazakh";
 
 interface AsmaName {
   name: string;
@@ -192,7 +193,7 @@ export default function AsmaAlHusna() {
                   {currentName.transliteration}
                 </p>
                 <p className="text-lg text-center text-orange-100">
-                  {currentName.en.meaning}
+                  {ASMA_KAZAKH[currentName.number]}
                 </p>
               </div>
             </div>
@@ -236,7 +237,7 @@ export default function AsmaAlHusna() {
             <ul className="mt-3 space-y-1">
               {namesForDay.map((name) => (
                 <li key={name.number} className="text-sm text-gray-600">
-                  {name.number}. {name.transliteration} – {name.en.meaning}
+                  {name.number}. {name.transliteration} – {ASMA_KAZAKH[name.number]}
                 </li>
               ))}
             </ul>
