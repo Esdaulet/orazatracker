@@ -6,6 +6,7 @@ interface User {
   displayName: string;
   isAdmin: boolean;
   photoURL?: string;
+  createdAt?: number;
 }
 
 interface AuthStore {

@@ -1,21 +1,25 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useAuthStore } from "../store/authStore";
 import Lottie from "lottie-react";
 import { X } from "lucide-react";
 import annosAnimation from "../assets/annons.json";
 
 const STORAGE_KEY = "asma_al_husna_announcement_dismissed";
+// Show announcement to users created before 2026-02-21 (i.e., existing users on Feb 20 and earlier)
+const FEATURE_ADDED_DATE = new Date("2026-02-21").getTime();
 
 export default function AsmaAlHusnaBanner() {
   const navigate = useNavigate();
-  const [isOpen, setIsOpen] = useState(false);
+  const user = useAuthStore((state) => state.user);
+  const [isOpen, setIsOpen] = useState(() => {
+    return localStorage.getItem(STORAGE_KEY) !== "true";
+  });
 
-  useEffect(() => {
-    const isDismissedStored = localStorage.getItem(STORAGE_KEY);
-    if (isDismissedStored !== "true") {
-      setIsOpen(true);
-    }
-  }, []);
+  // Only show for existing users (registered before feature was added)
+  if (!user || !user.createdAt || user.createdAt >= FEATURE_ADDED_DATE) {
+    return null;
+  }
 
   const handleDismiss = () => {
     localStorage.setItem(STORAGE_KEY, "true");
