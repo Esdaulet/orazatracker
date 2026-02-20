@@ -1,9 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { ChevronLeft, ChevronRight, Bookmark } from "lucide-react";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 import BottomNav from "../components/BottomNav";
 import { ASMA_KAZAKH } from "../data/asmaKazakh";
+import { ASMA_KAZAKH_TRANSLIT } from "../data/asmaKazakhTranslit";
 
 interface AsmaName {
   name: string;
@@ -30,7 +31,7 @@ export default function AsmaAlHusna() {
   useEffect(() => {
     const today = new Date();
     const diffDays = Math.floor(
-      (today.getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24)
+      (today.getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24),
     );
     const currentDay = Math.min(Math.max(diffDays + 1, 1), 33);
     setSelectedDay(currentDay);
@@ -46,9 +47,7 @@ export default function AsmaAlHusna() {
     const fetchAsma = async () => {
       try {
         setLoading(true);
-        const response = await fetch(
-          "https://api.aladhan.com/v1/asmaAlHusna"
-        );
+        const response = await fetch("https://api.aladhan.com/v1/asmaAlHusna");
         if (!response.ok) throw new Error("Failed to fetch asma names");
         const data = await response.json();
         setNames(data.data || []);
@@ -65,7 +64,7 @@ export default function AsmaAlHusna() {
   // Get 3 names for selected day
   const namesForDay = names.slice(
     (selectedDay - 1) * 3,
-    (selectedDay - 1) * 3 + 3
+    (selectedDay - 1) * 3 + 3,
   );
   const currentName = namesForDay[cardIndex];
 
@@ -108,18 +107,20 @@ export default function AsmaAlHusna() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-r from-amber-700 to-orange-900 px-4 pt-12 pb-8 text-white sticky top-0 z-10">
-        <button
-          onClick={() => navigate(-1)}
-          className="flex items-center gap-2 mb-4 hover:opacity-80 active:scale-95"
-        >
-          <ChevronLeft size={24} />
-        </button>
-        <h1 className="text-3xl font-bold flex items-center gap-2">
-          99 Аттары <Bookmark size={24} />
-        </h1>
+      <div className="bg-gradient-to-r from-amber-700 to-orange-900 px-4  pb-8 text-white  top-0 z-10">
+        <div className="flex items-center gap-2 mb-4 pt-6">
+          <button
+            onClick={() => navigate(-1)}
+            className="flex gap-2  hover:opacity-80 active:scale-95"
+          >
+            <ChevronLeft size={24} />
+          </button>
+          <h1 className="text-xl font-bold flex items-center gap-2">
+            Алланың 99 көркем есімі
+          </h1>
+        </div>
         <p className="text-amber-100 mt-2">
-          Күні: {selectedDay}/33 | Аттар {(selectedDay - 1) * 3 + 1}–
+          {selectedDay}-күн / 33 | Есімдер {(selectedDay - 1) * 3 + 1}–
           {Math.min(selectedDay * 3, 99)}
         </p>
       </div>
@@ -136,7 +137,7 @@ export default function AsmaAlHusna() {
                 : "bg-white text-amber-900 border-2 border-amber-300"
             } active:scale-95`}
           >
-            Күні {day}
+            {day}-күн
           </button>
         ))}
       </div>
@@ -167,13 +168,16 @@ export default function AsmaAlHusna() {
                 }}
               >
                 <p className="text-sm text-amber-600 font-semibold mb-4">
-                  #{currentName.number}/99
+                  {currentName.number}-есім / 99
                 </p>
-                <p className="text-5xl font-bold text-amber-900 text-center mb-4" style={{ fontFamily: "serif" }}>
+                <p
+                  className="text-5xl font-bold text-amber-900 text-center mb-4"
+                  style={{ fontFamily: "serif" }}
+                >
                   {currentName.name}
                 </p>
                 <p className="text-sm text-gray-500 mt-4">
-                  (нажми чтобы открыть)
+                  (мағынасын көру үшін басыңыз)
                 </p>
               </div>
 
@@ -186,11 +190,14 @@ export default function AsmaAlHusna() {
                   transform: "rotateY(180deg)",
                 }}
               >
-                <p className="text-4xl font-bold text-center mb-4" style={{ fontFamily: "serif" }}>
+                <p
+                  className="text-4xl font-bold text-center mb-4"
+                  style={{ fontFamily: "serif" }}
+                >
                   {currentName.name}
                 </p>
                 <p className="text-xl font-semibold mb-2 text-center">
-                  {currentName.transliteration}
+                  {ASMA_KAZAKH_TRANSLIT[currentName.number]}
                 </p>
                 <p className="text-lg text-center text-orange-100">
                   {ASMA_KAZAKH[currentName.number]}
@@ -228,16 +235,18 @@ export default function AsmaAlHusna() {
             </button>
           </div>
 
-          {/* Day Info */}
           <div className="mt-8 bg-white rounded-2xl p-6 w-full max-w-sm border-l-4 border-orange-600 shadow-lg">
-            <h3 className="font-bold text-amber-900 mb-2">Күні {selectedDay}</h3>
+            <h3 className="font-bold text-amber-900 mb-2">{selectedDay}-күн</h3>
+
             <p className="text-gray-700 text-sm">
-              Бүл күні {(selectedDay - 1) * 3 + 1}-ші аттарды өйренесіз:
+              Бүгін жүрегіңізге тоқитын көркем есімдер:
             </p>
+
             <ul className="mt-3 space-y-1">
               {namesForDay.map((name) => (
                 <li key={name.number} className="text-sm text-gray-600">
-                  {name.number}. {name.transliteration} – {ASMA_KAZAKH[name.number]}
+                  {name.number}. {ASMA_KAZAKH_TRANSLIT[name.number]} —{" "}
+                  {ASMA_KAZAKH[name.number]}
                 </li>
               ))}
             </ul>
@@ -245,7 +254,7 @@ export default function AsmaAlHusna() {
         </div>
       ) : (
         <div className="px-4 mt-8 bg-white rounded-2xl p-6 text-center text-gray-600">
-          Аттар табылмады
+          Есімдер жүктелмеді
         </div>
       )}
 
