@@ -1,7 +1,10 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { getCommunityProgress, getCachedCommunityProgress } from "../services/communityService";
+import {
+  getCommunityProgress,
+  getCachedCommunityProgress,
+} from "../services/communityService";
 import BottomNav from "../components/BottomNav";
 import { Users, Heart } from "lucide-react";
 
@@ -85,7 +88,7 @@ export default function CommunityProgress() {
       <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8 text-white">
         <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
           <Users size={32} />
-          Қауымдастық прогресі
+          Топтың прогресі
         </h1>
         <p className="text-indigo-200">Бүгінгі жетістіктер</p>
       </div>
@@ -103,7 +106,7 @@ export default function CommunityProgress() {
             </p>
           </div>
         ) : (
-          members.map((member, idx) => (
+          members.map((member) => (
             <div
               key={member.userId}
               className="bg-white rounded-2xl p-4 shadow-sm"
@@ -119,9 +122,6 @@ export default function CommunityProgress() {
                   )}
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-bold text-indigo-600 bg-indigo-50 px-2 py-1 rounded">
-                        #{idx + 1}
-                      </span>
                       <h3 className="font-bold text-lg text-gray-900">
                         {member.displayName}
                       </h3>

@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 import { getCategories, createCategory, deleteCategory, updateCategory } from '../services/categoryService';
 import BottomNav from '../components/BottomNav';
-import { Settings, X, Square, Edit, Trash2 } from 'lucide-react';
+import { Settings, X, Square, Edit, Trash2, BarChart3 } from 'lucide-react';
 import type { Category } from '../types';
 
 export default function AdminPanel() {
@@ -110,8 +110,15 @@ export default function AdminPanel() {
         <p className="text-indigo-200">Категория басқару</p>
       </div>
 
-      {/* Add Category Button */}
-      <div className="px-4 mt-6">
+      {/* Action Buttons */}
+      <div className="px-4 mt-6 space-y-2">
+        <button
+          onClick={() => navigate('/analytics')}
+          className="w-full py-3 bg-emerald-600 text-white font-bold rounded-xl active:scale-95 flex items-center justify-center gap-2"
+        >
+          <BarChart3 size={20} />
+          Аналитика
+        </button>
         <button
           onClick={() => {
             resetForm();

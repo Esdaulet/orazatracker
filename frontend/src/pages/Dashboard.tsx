@@ -3,10 +3,16 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { getCategories } from "../services/categoryService";
 import { getProgress, saveProgress } from "../services/progressService";
-import { getCurrentSurah } from "../services/surahService";
-import type { SurahData } from "../services/surahService";
+import { getWeekSurahs } from "../services/surahService";
+import type { WeekSurahData } from "../services/surahService";
+import {
+  getUnseenNewMembers,
+  markMemberAsSeen,
+} from "../services/newMembersService";
+import type { NewMember } from "../services/newMembersService";
 import BottomNav from "../components/BottomNav";
-import { Star, CheckCircle2, Square, BookOpen } from "lucide-react";
+import Toast from "../components/Toast";
+import { Star, CheckCircle2, Square } from "lucide-react";
 import type { Category } from "../types";
 
 // Ramadan 2026: Feb 18 – Mar 19
@@ -27,10 +33,13 @@ export default function Dashboard() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
-  const [surah, setSurah] = useState<SurahData | null>(null);
+  const [surah, setSurah] = useState<WeekSurahData | null>(null);
+  const [newMembers, setNewMembers] = useState<NewMember[]>([]);
+  const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
 
   const today = new Date().toISOString().split("T")[0];
   const ramadanDay = getRamadanDay();
+  const currentMember = newMembers[currentMemberIndex];
 
   const loadData = useCallback(async () => {
     try {
@@ -55,14 +64,26 @@ export default function Dashboard() {
     }
     loadData();
     // Load surah independently so it doesn't block main content
-    getCurrentSurah().then(setSurah).catch(() => {});
+    getWeekSurahs()
+      .then(setSurah)
+      .catch(() => {});
+    // Load new members
+    getUnseenNewMembers()
+      .then(setNewMembers)
+      .catch(() => {});
   }, [user, navigate, loadData]);
 
-  // Refresh data when user returns to dashboard
-  useEffect(() => {
-    window.addEventListener("focus", loadData);
-    return () => window.removeEventListener("focus", loadData);
-  }, [loadData]);
+  const handleNextMember = async () => {
+    if (currentMember) {
+      await markMemberAsSeen(currentMember.userId);
+    }
+    if (currentMemberIndex < newMembers.length - 1) {
+      setCurrentMemberIndex(currentMemberIndex + 1);
+    } else {
+      setNewMembers([]);
+      setCurrentMemberIndex(0);
+    }
+  };
 
   const completedCount = categories.filter(
     (c) => (progress[c.id] || 0) >= c.target,
@@ -124,6 +145,15 @@ export default function Dashboard() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
+      {/* New member toast */}
+      {currentMember && (
+        <Toast
+          message="Тағы бір керемет адам бізбен бірге! 🎉"
+          displayName={currentMember.displayName}
+          onClose={handleNextMember}
+        />
+      )}
+
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8">
         <div className="flex items-center justify-between mb-4">
@@ -159,7 +189,7 @@ export default function Dashboard() {
       </div>
 
       {/* Surah of the Week Card */}
-      {surah?.surah && (
+      {surah && (
         <div className="px-4 mt-3">
           <button
             onClick={() => navigate("/surah")}
@@ -167,16 +197,21 @@ export default function Dashboard() {
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <BookOpen size={20} className="text-white" />
-                <span className="text-white font-bold text-sm">Апталық Сүре</span>
+                <span className="text-white font-bold text-sm">
+                  Апталық Сүре
+                </span>
               </div>
               <span className="text-emerald-200 text-xs">
-                {surah.learners.length} жаттады →
+                {surah.members.filter((m) => m.surah?.learned).length} жаттады →
               </span>
             </div>
-            <p className="text-white font-semibold mt-1">{surah.surah.name}</p>
-            {surah.myLearned && (
-              <span className="text-xs text-emerald-100 mt-1 inline-block">✓ Жаттадым деп белгіледің</span>
+            <p className="text-white font-semibold mt-1">
+              {surah.mySurah ? surah.mySurah.name : "Сүре таңдау →"}
+            </p>
+            {surah.mySurah?.learned && (
+              <span className="text-xs text-emerald-100 mt-1 inline-block">
+                ✓ Жаттадым деп белгіледің
+              </span>
             )}
           </button>
         </div>

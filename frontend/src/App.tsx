@@ -12,6 +12,9 @@ import Profile from './pages/Profile';
 import CategoryCounter from './pages/CategoryCounter';
 import RamadanSchedule from './pages/RamadanSchedule';
 import CommunityProgress from './pages/CommunityProgress';
+import SurahOfWeek from './pages/SurahOfWeek';
+import Analytics from './pages/Analytics';
+import RouteTracker from './components/RouteTracker';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
@@ -84,15 +87,18 @@ function App() {
 
   return (
     <Router>
+      <RouteTracker />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
         <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
         <Route path="/community" element={<ProtectedRoute><CommunityProgress /></ProtectedRoute>} />
         <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
+        <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
         <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
         <Route path="/schedule" element={<ProtectedRoute><RamadanSchedule /></ProtectedRoute>} />
         <Route path="/counter/:categoryId" element={<ProtectedRoute><CategoryCounter /></ProtectedRoute>} />
+        <Route path="/surah" element={<ProtectedRoute><SurahOfWeek /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>

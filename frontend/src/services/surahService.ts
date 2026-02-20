@@ -1,24 +1,30 @@
 const API_URL = "https://us-central1-orazaapp.cloudfunctions.net/api";
 
-export interface Surah {
-  weekNumber: number;
+export interface UserSurah {
   name: string;
-  kazakh: string;
-  transliteration: string;
-  setAt: number;
+  learned: boolean;
+  setAt?: number;
 }
 
-export interface Learner {
+export interface SurahMember {
   userId: string;
   displayName: string;
   photoURL?: string | null;
+  surah: UserSurah | null;
 }
 
-export interface SurahData {
-  surah: Surah | null;
-  learners: Learner[];
-  myLearned: boolean;
+export interface WeekSurahData {
   weekNumber: number;
+  members: SurahMember[];
+  mySurah: UserSurah | null;
+}
+
+export interface QuranSurah {
+  number: number;
+  englishName: string;
+  name: string; // Arabic name
+  numberOfAyahs: number;
+  revelationType: "Meccan" | "Medinan";
 }
 
 function authHeaders() {
@@ -26,11 +32,21 @@ function authHeaders() {
   return { Authorization: `Bearer ${token}` };
 }
 
-export async function getCurrentSurah(): Promise<SurahData> {
-  const response = await fetch(`${API_URL}/surah/current`, {
+export async function getWeekSurahs(): Promise<WeekSurahData> {
+  const response = await fetch(`${API_URL}/surah/week`, {
     headers: authHeaders(),
   });
-  if (!response.ok) throw new Error("Failed to fetch surah");
+  if (!response.ok) throw new Error("Failed to fetch week surahs");
+  return response.json();
+}
+
+export async function setMySurah(name: string): Promise<UserSurah> {
+  const response = await fetch(`${API_URL}/surah/set`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json", ...authHeaders() },
+    body: JSON.stringify({ name }),
+  });
+  if (!response.ok) throw new Error("Failed to set surah");
   return response.json();
 }
 
@@ -43,20 +59,13 @@ export async function toggleSurahLearned(): Promise<{ learned: boolean }> {
   return response.json();
 }
 
-export async function setSurah(
-  weekNumber: number,
-  name: string,
-  kazakh: string,
-  transliteration: string
-): Promise<Surah> {
-  const response = await fetch(`${API_URL}/surah`, {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-      ...authHeaders(),
-    },
-    body: JSON.stringify({ weekNumber, name, kazakh, transliteration }),
-  });
-  if (!response.ok) throw new Error("Failed to set surah");
-  return response.json();
+let cachedSurahList: QuranSurah[] | null = null;
+
+export async function fetchAllSurahs(): Promise<QuranSurah[]> {
+  if (cachedSurahList) return cachedSurahList;
+  const response = await fetch("https://api.alquran.cloud/v1/surah");
+  if (!response.ok) throw new Error("Failed to fetch surah list");
+  const json = await response.json();
+  cachedSurahList = json.data as QuranSurah[];
+  return cachedSurahList;
 }

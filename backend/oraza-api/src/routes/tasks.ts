@@ -117,9 +117,11 @@ router.get(
       }
       const users = usersSnapshot.val();
 
-      // Build community progress
+      // Build community progress (exclude admins)
       const communityProgress = await Promise.all(
-        Object.entries(users).map(async ([userId, userData]: any) => {
+        Object.entries(users)
+          .filter(([_, userData]: any) => userData.role !== "admin")
+          .map(async ([userId, userData]: any) => {
           const progressSnapshot = await db
             .ref(`progress/${userId}/${date}`)
             .get();
