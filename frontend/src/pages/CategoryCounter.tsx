@@ -75,8 +75,36 @@ export default function CategoryCounter() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gray-50">
-        <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-indigo-600" />
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col pb-8">
+        {/* Header Skeleton */}
+        <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-4 pb-8">
+          <div className="mb-4 w-8 h-8 bg-indigo-600 rounded animate-pulse" />
+          <div className="flex justify-between items-center">
+            <div className="h-8 w-48 bg-indigo-600 rounded animate-pulse" />
+            <div className="h-8 w-12 bg-indigo-600 rounded animate-pulse" />
+          </div>
+        </div>
+
+        {/* Counter Skeleton */}
+        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
+          {/* Big Counter */}
+          <div className="w-56 h-56 rounded-3xl bg-gray-300 shadow-2xl flex items-center justify-center mb-8 animate-pulse" />
+
+          {/* Progress Bar */}
+          <div className="w-full max-w-sm mb-8">
+            <div className="flex justify-between text-sm mb-2">
+              <div className="h-4 w-20 bg-gray-300 rounded animate-pulse" />
+              <div className="h-4 w-12 bg-gray-300 rounded animate-pulse" />
+            </div>
+            <div className="w-full bg-gray-300 rounded-full h-3 animate-pulse" />
+          </div>
+
+          {/* Info Box */}
+          <div className="bg-white rounded-2xl p-6 shadow-sm max-w-sm w-full">
+            <div className="h-4 w-full bg-gray-300 rounded mb-2 animate-pulse" />
+            <div className="h-4 w-5/6 bg-gray-300 rounded animate-pulse" />
+          </div>
+        </div>
       </div>
     );
   }
