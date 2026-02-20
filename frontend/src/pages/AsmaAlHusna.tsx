@@ -105,9 +105,9 @@ export default function AsmaAlHusna() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-purple-50 to-violet-100 pb-24">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
       {/* Header */}
-      <div className="bg-gradient-to-r from-purple-700 to-violet-900 px-4  pb-8 text-white  top-0 z-10">
+      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4  pb-8 text-white  top-0 z-10">
         <div className="flex items-center gap-2 mb-4 pt-6">
           <button
             onClick={() => navigate(-1)}
@@ -119,7 +119,7 @@ export default function AsmaAlHusna() {
             Алланың 99 көркем есімі
           </h1>
         </div>
-        <p className="text-purple-100 mt-2">
+        <p className="text-indigo-100 mt-2">
           {selectedDay}-күн / 33 | Есімдер {(selectedDay - 1) * 3 + 1}–
           {Math.min(selectedDay * 3, 99)}
         </p>
@@ -133,8 +133,8 @@ export default function AsmaAlHusna() {
             onClick={() => handleDaySelect(day)}
             className={`px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all ${
               selectedDay === day
-                ? "bg-purple-600 text-white scale-110"
-                : "bg-white text-purple-900 border-2 border-purple-300"
+                ? "bg-indigo-600 text-white scale-110"
+                : "bg-white text-indigo-900 border-2 border-indigo-300"
             } active:scale-95`}
           >
             {day}-күн
@@ -161,17 +161,17 @@ export default function AsmaAlHusna() {
             >
               {/* Front */}
               <div
-                className="absolute w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center border-4 border-purple-300"
+                className="absolute w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center border-4 border-indigo-300"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                 }}
               >
-                <p className="text-sm text-purple-600 font-semibold mb-4">
+                <p className="text-sm text-indigo-600 font-semibold mb-4">
                   {currentName.number}-есім / 99
                 </p>
                 <p
-                  className="text-5xl font-bold text-purple-900 text-center mb-4"
+                  className="text-5xl font-bold text-indigo-900 text-center mb-4"
                   style={{ fontFamily: "serif" }}
                 >
                   {currentName.name}
@@ -183,7 +183,7 @@ export default function AsmaAlHusna() {
 
               {/* Back */}
               <div
-                className="absolute w-full h-full bg-gradient-to-br from-purple-500 to-violet-600 rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-white border-4 border-purple-300"
+                className="absolute w-full h-full bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-white border-4 border-indigo-300"
                 style={{
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
@@ -199,7 +199,7 @@ export default function AsmaAlHusna() {
                 <p className="text-xl font-semibold mb-2 text-center">
                   {ASMA_KAZAKH_TRANSLIT[currentName.number]}
                 </p>
-                <p className="text-lg text-center text-purple-100">
+                <p className="text-lg text-center text-indigo-100">
                   {ASMA_KAZAKH[currentName.number]}
                 </p>
               </div>
@@ -214,12 +214,12 @@ export default function AsmaAlHusna() {
               className={`p-3 rounded-full transition-all ${
                 cardIndex === 0
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95"
+                  : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
               }`}
             >
               <ChevronLeft size={24} />
             </button>
-            <span className="text-lg font-bold text-purple-900">
+            <span className="text-lg font-bold text-indigo-900">
               {cardIndex + 1}/3
             </span>
             <button
@@ -228,15 +228,15 @@ export default function AsmaAlHusna() {
               className={`p-3 rounded-full transition-all ${
                 cardIndex === 2
                   ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-purple-600 text-white hover:bg-purple-700 active:scale-95"
+                  : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
               }`}
             >
               <ChevronRight size={24} />
             </button>
           </div>
 
-          <div className="mt-8 bg-white rounded-2xl p-6 w-full max-w-sm border-l-4 border-purple-600 shadow-lg">
-            <h3 className="font-bold text-purple-900 mb-2">{selectedDay}-күн</h3>
+          <div className="mt-8 bg-white rounded-2xl p-6 w-full max-w-sm border-l-4 border-indigo-600 shadow-lg">
+            <h3 className="font-bold text-indigo-900 mb-2">{selectedDay}-күн</h3>
 
             <p className="text-gray-700 text-sm">
               Бүгін жүрегіңізге тоқитын көркем есімдер:
