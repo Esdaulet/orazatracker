@@ -12,6 +12,7 @@ import {
 import type { NewMember } from "../services/newMembersService";
 import BottomNav from "../components/BottomNav";
 import Toast from "../components/Toast";
+import AsmaAlHusnaBanner from "../components/AsmaAlHusnaBanner";
 import { Star, CheckCircle2, Square } from "lucide-react";
 import type { Category } from "../types";
 
@@ -187,6 +188,9 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* AsmaAlHusna Announcement Banner */}
+      <AsmaAlHusnaBanner />
 
       {/* Surah of the Week Card */}
       {surah && (

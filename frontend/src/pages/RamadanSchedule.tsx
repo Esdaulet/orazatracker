@@ -249,7 +249,9 @@ const PRAYER_TIMES: PrayerTime[] = [
 
 function getTodayIndex(): number {
   const ramadanStart = new Date(2026, 1, 19); // Feb 19, 2026
-  const diff = Math.floor((new Date().getTime() - ramadanStart.getTime()) / (1000 * 60 * 60 * 24));
+  const diff = Math.floor(
+    (new Date().getTime() - ramadanStart.getTime()) / (1000 * 60 * 60 * 24),
+  );
   if (diff >= 0 && diff < PRAYER_TIMES.length) return diff;
   return 0;
 }
@@ -263,16 +265,17 @@ export default function RamadanSchedule() {
     <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
       {/* Header */}
       <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8 text-white">
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="mb-4 p-1 hover:bg-indigo-600 rounded transition"
-        >
-          <ArrowLeft size={24} />
-        </button>
-        <h1 className="text-3xl font-bold mb-2 flex items-center gap-2">
-          <Moon size={32} />
-          Рамазан
-        </h1>
+        <div className="flex items-center gap-2 ">
+          <button
+            onClick={() => navigate("/dashboard")}
+            className="  hover:bg-indigo-600 rounded transition"
+          >
+            <ArrowLeft size={24} />
+          </button>
+          <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
+            Рамазан кестесі
+          </h1>
+        </div>
         <p className="text-indigo-200">Ораза уақыты</p>
       </div>
 

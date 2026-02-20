@@ -11,7 +11,7 @@ export default function BottomNav() {
     { path: "/dashboard", icon: Home, label: "Басты бет" },
     { path: "/community", icon: Heart, label: "Топ" },
     { path: "/schedule", icon: Clock, label: "Күнтізбе" },
-    { path: "/asma", icon: BookOpen, label: "99 Аттар" },
+    { path: "/asma", icon: BookOpen, label: "Есімдер" },
     ...(isAdmin ? [{ path: "/admin", icon: Settings, label: "Админ" }] : []),
     { path: "/profile", icon: User, label: "Профиль" },
   ];

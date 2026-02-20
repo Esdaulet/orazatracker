@@ -91,8 +91,8 @@ export default function AsmaAlHusna() {
   // Skeleton loader
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-amber-50 to-orange-100 pb-24">
-        <div className="bg-gradient-to-r from-amber-700 to-orange-900 px-4 pt-12 pb-8 text-white">
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
+        <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8 text-white">
           <div className="h-8 w-40 bg-white/20 rounded animate-pulse mb-2" />
           <div className="h-4 w-32 bg-white/20 rounded animate-pulse" />
         </div>
@@ -236,7 +236,9 @@ export default function AsmaAlHusna() {
           </div>
 
           <div className="mt-8 bg-white rounded-2xl p-6 w-full max-w-sm border-l-4 border-indigo-600 shadow-lg">
-            <h3 className="font-bold text-indigo-900 mb-2">{selectedDay}-күн</h3>
+            <h3 className="font-bold text-indigo-900 mb-2">
+              {selectedDay}-күн
+            </h3>
 
             <p className="text-gray-700 text-sm">
               Бүгін жүрегіңізге тоқитын көркем есімдер:
