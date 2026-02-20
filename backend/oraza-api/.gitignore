@@ -8,3 +8,8 @@ typings/
 # Node.js dependency directory
 node_modules/
 *.local
+
+# Secrets and credentials
+serviceAccount.json
+.env
+.env.local
