@@ -3,8 +3,10 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { getCategories } from "../services/categoryService";
 import { getProgress, saveProgress } from "../services/progressService";
+import { getCurrentSurah } from "../services/surahService";
+import type { SurahData } from "../services/surahService";
 import BottomNav from "../components/BottomNav";
-import { Star, CheckCircle2, Square } from "lucide-react";
+import { Star, CheckCircle2, Square, BookOpen } from "lucide-react";
 import type { Category } from "../types";
 
 // Ramadan 2026: Feb 18 – Mar 19
@@ -25,6 +27,7 @@ export default function Dashboard() {
   const [categories, setCategories] = useState<Category[]>([]);
   const [progress, setProgress] = useState<Record<string, number>>({});
   const [loading, setLoading] = useState(true);
+  const [surah, setSurah] = useState<SurahData | null>(null);
 
   const today = new Date().toISOString().split("T")[0];
   const ramadanDay = getRamadanDay();
@@ -51,6 +54,8 @@ export default function Dashboard() {
       return;
     }
     loadData();
+    // Load surah independently so it doesn't block main content
+    getCurrentSurah().then(setSurah).catch(() => {});
   }, [user, navigate, loadData]);
 
   // Refresh data when user returns to dashboard
@@ -152,6 +157,30 @@ export default function Dashboard() {
           </div>
         )}
       </div>
+
+      {/* Surah of the Week Card */}
+      {surah?.surah && (
+        <div className="px-4 mt-3">
+          <button
+            onClick={() => navigate("/surah")}
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-4 text-left active:scale-95 transition-transform shadow-sm"
+          >
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <BookOpen size={20} className="text-white" />
+                <span className="text-white font-bold text-sm">Апталық Сүре</span>
+              </div>
+              <span className="text-emerald-200 text-xs">
+                {surah.learners.length} жаттады →
+              </span>
+            </div>
+            <p className="text-white font-semibold mt-1">{surah.surah.name}</p>
+            {surah.myLearned && (
+              <span className="text-xs text-emerald-100 mt-1 inline-block">✓ Жаттадым деп белгіледің</span>
+            )}
+          </button>
+        </div>
+      )}
 
       {/* Categories Grid */}
       <div className="px-4 mt-3 flex flex-col gap-2">
