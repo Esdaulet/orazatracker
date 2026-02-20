@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { Home, Clock, Settings, User, Heart } from "lucide-react";
+import { Home, Clock, Settings, User, Heart, BookOpen } from "lucide-react";
 
 export default function BottomNav() {
   const navigate = useNavigate();
@@ -11,6 +11,7 @@ export default function BottomNav() {
     { path: "/dashboard", icon: Home, label: "Басты бет" },
     { path: "/community", icon: Heart, label: "Топ" },
     { path: "/schedule", icon: Clock, label: "Күнтізбе" },
+    { path: "/asma", icon: BookOpen, label: "99 Аттар" },
     ...(isAdmin ? [{ path: "/admin", icon: Settings, label: "Админ" }] : []),
     { path: "/profile", icon: User, label: "Профиль" },
   ];
