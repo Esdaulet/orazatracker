@@ -1,7 +1,7 @@
 import { api } from './api';
 
 export interface Progress {
-  [categoryId: string]: number;
+  [categoryId: string]: number | number[];
 }
 
 export const getProgress = async (date: string): Promise<Progress> => {
@@ -11,7 +11,7 @@ export const getProgress = async (date: string): Promise<Progress> => {
 export const saveProgress = async (
   date: string,
   categoryId: string,
-  count: number
+  count: number | number[]
 ): Promise<{ success: boolean }> => {
   return api('/tasks/progress', {
     method: 'POST',

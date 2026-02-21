@@ -32,7 +32,7 @@ export default function Dashboard() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [progress, setProgress] = useState<Record<string, number>>({});
+  const [progress, setProgress] = useState<Record<string, number | number[]>>({});
   const [loading, setLoading] = useState(true);
   const [surah, setSurah] = useState<WeekSurahData | null>(null);
   const [newMembers, setNewMembers] = useState<NewMember[]>([]);
@@ -86,14 +86,23 @@ export default function Dashboard() {
     }
   };
 
-  const completedCount = categories.filter(
-    (c) => (progress[c.id] || 0) >= c.target,
-  ).length;
+  const completedCount = categories.filter((c) => {
+    const rawCount = progress[c.id] || 0;
+    const count = Array.isArray(rawCount)
+      ? rawCount.filter(x => x >= 33).length
+      : rawCount;
+    return count >= c.target;
+  }).length;
 
   const handleToggleCheckbox = useCallback(
     async (e: React.MouseEvent, categoryId: string, target: number) => {
       e.stopPropagation();
-      const count = progress[categoryId] || 0;
+
+      const rawCount = progress[categoryId] || 0;
+      // For FirstThreeNames: count how many names are fully learned (>= 33)
+      const count = Array.isArray(rawCount)
+        ? rawCount.filter(c => c >= 33).length
+        : rawCount;
       const newCount = count >= target ? 0 : target;
 
       setProgress({
@@ -235,7 +244,12 @@ export default function Dashboard() {
           </div>
         ) : (
           categories.map((category) => {
-            const count = progress[category.id] || 0;
+            const rawCount = progress[category.id] || 0;
+            // Handle both number (traditional categories) and array (FirstThreeNames)
+            // For FirstThreeNames: count how many names are fully learned (>= 33)
+            const count = Array.isArray(rawCount)
+              ? rawCount.filter(c => c >= 33).length
+              : rawCount;
             const isDone = count >= category.target;
             const pct = Math.min((count / category.target) * 100, 100);
 
@@ -248,7 +262,12 @@ export default function Dashboard() {
               >
                 <div className="flex items-center justify-between mb-2">
                   <button
-                    onClick={() => navigate(`/counter/${category.id}`)}
+                    onClick={() => {
+                      const path = category.target === 3 && category.name.includes("есімі")
+                        ? `/names/${category.id}`
+                        : `/counter/${category.id}`;
+                      navigate(path);
+                    }}
                     className="flex-1 text-left hover:opacity-80 transition-opacity"
                   >
                     <h3 className="font-bold text-gray-900">{category.name}</h3>
@@ -268,7 +287,12 @@ export default function Dashboard() {
                 </div>
 
                 <button
-                  onClick={() => navigate(`/counter/${category.id}`)}
+                  onClick={() => {
+                    const path = category.target === 3 && category.name.includes("есімі")
+                      ? `/names/${category.id}`
+                      : `/counter/${category.id}`;
+                    navigate(path);
+                  }}
                   className="w-full text-left hover:opacity-80 transition-opacity"
                 >
                   <div className="mb-2">

@@ -38,7 +38,9 @@ export default function CategoryCounter() {
       setCategory(cat);
 
       const progress = await getProgress(today);
-      setCount(progress[categoryId as string] || 0);
+      const rawCount = progress[categoryId as string] || 0;
+      const count = Array.isArray(rawCount) ? 0 : rawCount;
+      setCount(count);
     } catch (e) {
       console.error(e);
     } finally {

@@ -6,6 +6,7 @@ import {
   getCachedCommunityProgress,
 } from "../services/communityService";
 import BottomNav from "../components/BottomNav";
+import Avatar from "../components/Avatar";
 import { Heart } from "lucide-react";
 
 interface CommunityMember {
@@ -112,13 +113,7 @@ export default function CommunityProgress() {
             >
               <div className="flex items-start justify-between mb-3">
                 <div className="flex-1 flex items-center gap-3">
-                  {member.photoURL && (
-                    <img
-                      src={member.photoURL}
-                      alt={member.displayName}
-                      className="w-12 h-12 rounded-full object-cover"
-                    />
-                  )}
+                  <Avatar photoURL={member.photoURL} displayName={member.displayName} size="md" />
                   <div className="flex-1">
                     <div className="flex items-center gap-2">
                       <h3 className="font-bold text-lg text-gray-900">

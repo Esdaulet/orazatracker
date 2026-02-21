@@ -86,7 +86,7 @@ router.post(
     try {
       await db
         .ref(`progress/${req.userId}/${date}/${categoryId}`)
-        .set(Number(count));
+        .set(Array.isArray(count) ? count : Number(count));
       return res.json({ success: true });
     } catch (error) {
       console.error(error);
