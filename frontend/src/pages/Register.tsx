@@ -1,5 +1,5 @@
-import { useState } from "react";
-import { useNavigate, Link } from "react-router-dom";
+import { useState, useEffect } from "react";
+import { useNavigate, Link, useSearchParams } from "react-router-dom";
 import { registerUser, getStoredUser } from "../services/authService";
 import { useAuthStore } from "../store/authStore";
 import { Eye, EyeOff } from "lucide-react";
@@ -10,12 +10,22 @@ export default function Register() {
   const [phone, setPhone] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [referralCode, setReferralCode] = useState("");
   const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const navigate = useNavigate();
   const setUser = useAuthStore((state) => state.setUser);
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    // Auto-fill referral code from URL parameter
+    const refParam = searchParams.get("ref");
+    if (refParam) {
+      setReferralCode(refParam);
+    }
+  }, [searchParams]);
 
   const formatPhone = (value: string) => {
     const digits = value.replace(/\D/g, "").slice(0, 11);
@@ -49,7 +59,12 @@ export default function Register() {
 
     setLoading(true);
     try {
-      const user = await registerUser(phone, password, displayName);
+      const user = await registerUser(
+        phone,
+        password,
+        displayName,
+        referralCode || undefined,
+      );
       const storedUser = getStoredUser();
       setUser({
         uid: user.userId || user.uid,
@@ -108,6 +123,22 @@ export default function Register() {
                 placeholder="7 777 777 77 77"
               />
             </div>
+          </div>
+
+          <div>
+            <label className="block text-sm font-medium text-gray-700 mb-1">
+              Шақыру коды (міндетті емес)
+            </label>
+            <input
+              type="text"
+              value={referralCode}
+              onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
+              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              placeholder="Шақыру кодын енгізіңіз, мысалы: ABC123"
+            />
+            <p className="text-xs text-gray-500 mt-1">
+              Егер сізді біреу шақырса, оның кодын енгізіңіз
+            </p>
           </div>
 
           <div>

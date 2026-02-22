@@ -6,9 +6,17 @@ import { generateToken, ADMIN_USER_ID, authMiddleware, AuthRequest } from "../mi
 
 const router = Router();
 
+// Utility function to generate referral code
+function generateReferralCode(): string {
+  const chars = "ABCDEFGHJKLMNPQRSTUVWXYZ23456789"; // avoid similar symbols
+  return Array.from({ length: 6 }, () =>
+    chars[Math.floor(Math.random() * chars.length)],
+  ).join("");
+}
+
 // POST /auth/register
 router.post("/register", async (req: Request, res: Response) => {
-  const { phone, password, displayName } = req.body;
+  const { phone, password, displayName, referralCode } = req.body;
 
   if (!phone || !password || !displayName) {
     return res.status(400).json({ error: "Заполни все поля" });
@@ -48,6 +56,36 @@ router.post("/register", async (req: Request, res: Response) => {
 
     const role = userId === ADMIN_USER_ID ? "admin" : "user";
 
+    // Handle referral code if provided
+    let referrerId: string | null = null;
+    if (referralCode) {
+      const usersSnapshot = await db.ref("users").get();
+      if (usersSnapshot.exists()) {
+        const allUsers = usersSnapshot.val();
+        const referrer = Object.values(allUsers).find(
+          (u: any) => u.referralCode === referralCode,
+        ) as any;
+        if (referrer) {
+          referrerId = referrer.userId;
+          // Award +10 sawapPoints to referrer
+          const currentPoints = referrer.sawapPoints || 0;
+          await db
+            .ref(`users/${referrerId}/sawapPoints`)
+            .set(currentPoints + 10);
+
+          // Record in referrals tree
+          await db.ref(`referrals/${referrerId}/${userId}`).set({
+            refereeId: userId,
+            refereeName: displayName,
+            joinedAt: Date.now(),
+          });
+        }
+      }
+    }
+
+    // Generate unique referral code for this new user
+    const newUserReferralCode = generateReferralCode();
+
     // Save user to Firebase
     await db.ref(`users/${userId}`).set({
       userId,
@@ -56,6 +94,9 @@ router.post("/register", async (req: Request, res: Response) => {
       password: hashedPassword,
       role,
       createdAt: Date.now(),
+      referralCode: newUserReferralCode,
+      referredBy: referrerId || null,
+      sawapPoints: 0,
     });
 
     const token = generateToken(userId, digits, displayName, role);
@@ -109,6 +150,18 @@ router.post("/login", async (req: Request, res: Response) => {
     if (userData.userId === ADMIN_USER_ID && role !== "admin") {
       role = "admin";
       await db.ref(`users/${userData.userId}/role`).set("admin");
+    }
+
+    // Migration: Generate referral code for old users who don't have one
+    if (!userData.referralCode) {
+      const newCode = generateReferralCode();
+      await db.ref(`users/${userData.userId}/referralCode`).set(newCode);
+      userData.referralCode = newCode;
+    }
+
+    // Migration: Ensure sawapPoints exists
+    if (userData.sawapPoints === undefined) {
+      await db.ref(`users/${userData.userId}/sawapPoints`).set(0);
     }
 
     const token = generateToken(
@@ -203,6 +256,19 @@ router.get(
         return res.status(404).json({ error: "Пользователь не найден" });
       }
       const userData = snapshot.val();
+
+      // Migration: Generate referral code for old users who don't have one
+      if (!userData.referralCode) {
+        const newCode = generateReferralCode();
+        await db.ref(`users/${req.userId}/referralCode`).set(newCode);
+        userData.referralCode = newCode;
+      }
+
+      // Migration: Ensure sawapPoints exists
+      if (userData.sawapPoints === undefined) {
+        await db.ref(`users/${req.userId}/sawapPoints`).set(0);
+      }
+
       return res.json({
         userId: userData.userId,
         displayName: userData.displayName,

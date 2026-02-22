@@ -1,4 +1,4 @@
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useCallback, useRef } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { getCategories } from "../services/categoryService";
@@ -12,9 +12,60 @@ import {
 import type { NewMember } from "../services/newMembersService";
 import BottomNav from "../components/BottomNav";
 import Toast from "../components/Toast";
-import AsmaAlHusnaBanner from "../components/AsmaAlHusnaBanner";
 import { Star, CheckCircle2, Square } from "lucide-react";
+import Lottie from "lottie-react";
+import referralAnimation from "../assets/referal.json";
+import announcementAnimation from "../assets/annons.json";
 import type { Category } from "../types";
+
+// Announcements carousel data
+interface Announcement {
+  id: string;
+  emoji: string;
+  title: string;
+  desc: string;
+  cta: string;
+  route: string;
+  gradient: string;
+  storageKey: string;
+  animationData: object;
+}
+
+const ANNOUNCEMENTS: Announcement[] = [
+  {
+    id: "referral",
+    emoji: "📿",
+    title: "Сауап дәптері",
+    desc: "Достарыңызды шақырып, игі іске себепкер болыңыз",
+    cta: "Профильге өту →",
+    route: "/profile",
+    gradient: "from-purple-600 to-indigo-600",
+    storageKey: "ann_referral_seen",
+    animationData: referralAnimation,
+  },
+  {
+    id: "asma99",
+    emoji: "✨",
+    title: "Алланың 99 көркем есімі",
+    desc: "Күн сайын 3 көркем есімді үйреніп, мағынасын терең ұғыныңыз",
+    cta: "Бастау →",
+    route: "/asma",
+    gradient: "from-violet-600 to-purple-600",
+    storageKey: "ann_asma_seen",
+    animationData: announcementAnimation,
+  },
+  {
+    id: "community",
+    emoji: "🤝",
+    title: "Қауымдастық",
+    desc: "Барлық қолданушылардың жетістіктері мен прогресін бақылаңыз",
+    cta: "Қарау →",
+    route: "/community",
+    gradient: "from-blue-600 to-cyan-600",
+    storageKey: "ann_community_seen",
+    animationData: announcementAnimation,
+  },
+];
 
 // Ramadan 2026: Feb 18 – Mar 19
 const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
@@ -32,15 +83,27 @@ export default function Dashboard() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const [categories, setCategories] = useState<Category[]>([]);
-  const [progress, setProgress] = useState<Record<string, number | number[]>>({});
+  const [progress, setProgress] = useState<Record<string, number | number[]>>(
+    {},
+  );
   const [loading, setLoading] = useState(true);
   const [surah, setSurah] = useState<WeekSurahData | null>(null);
   const [newMembers, setNewMembers] = useState<NewMember[]>([]);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
+  const [carouselIndex, setCarouselIndex] = useState(0);
+  const touchStartX = useRef(0);
 
   const today = new Date().toISOString().split("T")[0];
   const ramadanDay = getRamadanDay();
   const currentMember = newMembers[currentMemberIndex];
+
+  // Auto-rotate carousel every 5 seconds
+  useEffect(() => {
+    const interval = setInterval(() => {
+      setCarouselIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const loadData = useCallback(async () => {
     try {
@@ -89,7 +152,7 @@ export default function Dashboard() {
   const completedCount = categories.filter((c) => {
     const rawCount = progress[c.id] || 0;
     const count = Array.isArray(rawCount)
-      ? rawCount.filter(x => x >= 33).length
+      ? rawCount.filter((x) => x >= 33).length
       : rawCount;
     return count >= c.target;
   }).length;
@@ -101,7 +164,7 @@ export default function Dashboard() {
       const rawCount = progress[categoryId] || 0;
       // For FirstThreeNames: count how many names are fully learned (>= 33)
       const count = Array.isArray(rawCount)
-        ? rawCount.filter(c => c >= 33).length
+        ? rawCount.filter((c) => c >= 33).length
         : rawCount;
       const newCount = count >= target ? 0 : target;
 
@@ -164,31 +227,31 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8">
-        <div className="flex items-center justify-between mb-4">
+      {/* Header - Compact */}
+      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-6 pb-4">
+        <div className="flex items-center justify-between">
           <div>
-            <div className="text-indigo-200 text-sm flex items-center gap-1">
-              <span>Бүгін {ramadanDay} күн</span>
-              <Star size={16} fill="currentColor" />
-            </div>
-            <h1 className="text-white text-2xl font-bold mt-1">
-              Ассаламуалейкум, {user?.displayName}!
+            <h1 className="text-white text-lg font-bold">
+              Қош келдіңіз, {user?.displayName}!
             </h1>
+            <div className="text-indigo-200 text-xs flex items-center gap-1 mt-0.5">
+              <span>Бүгін Рамазанның {ramadanDay}-күні</span>
+              <Star size={12} fill="currentColor" />
+            </div>
           </div>
         </div>
 
         {categories.length > 0 && (
-          <div className="mt-4 bg-white bg-opacity-20 rounded-xl p-3">
-            <div className="flex justify-between text-white text-sm mb-2">
+          <div className="mt-2 bg-white bg-opacity-15 rounded-lg p-2">
+            <div className="flex justify-between text-white text-xs mb-1">
               <span>Орындалған</span>
               <span className="font-bold">
                 {completedCount}/{categories.length}
               </span>
             </div>
-            <div className="w-full bg-indigo-600 bg-opacity-30 rounded-full h-2">
+            <div className="w-full bg-indigo-600 bg-opacity-30 rounded-full h-1.5">
               <div
-                className="bg-white h-2 rounded-full transition-all duration-500"
+                className="bg-white h-1.5 rounded-full transition-all duration-500"
                 style={{
                   width: `${categories.length ? (completedCount / categories.length) * 100 : 0}%`,
                 }}
@@ -198,15 +261,101 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* AsmaAlHusna Announcement Banner */}
-      <AsmaAlHusnaBanner />
+      {/* Announcements Carousel */}
+      <div className="px-3 sm:px-4 mt-3 sm:mt-4">
+        <div className="relative">
+          {/* Carousel Card */}
+          <div
+            className="overflow-hidden rounded-2xl sm:rounded-3xl"
+            onTouchStart={(e) => {
+              touchStartX.current = e.touches[0].clientX;
+            }}
+            onTouchEnd={(e) => {
+              const touchEndX = e.changedTouches[0].clientX;
+              const diff = touchStartX.current - touchEndX;
+              if (Math.abs(diff) > 50) {
+                if (diff > 0) {
+                  // Свайп влево → следующий
+                  setCarouselIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+                } else {
+                  // Свайп вправо → предыдущий
+                  setCarouselIndex((prev) =>
+                    prev === 0 ? ANNOUNCEMENTS.length - 1 : prev - 1,
+                  );
+                }
+              }
+            }}
+          >
+            <div className="relative">
+              {ANNOUNCEMENTS.map((announcement, idx) => (
+                <div
+                  key={announcement.id}
+                  className={`transition-all duration-500 ${
+                    idx === carouselIndex ? "block" : "hidden"
+                  }`}
+                >
+                  <div
+                    className={`bg-gradient-to-br ${announcement.gradient} p-4 sm:p-6 text-white min-h-48 sm:min-h-60 flex flex-col justify-between rounded-2xl sm:rounded-3xl overflow-hidden relative`}
+                  >
+                    {/* Lottie Animation Background */}
+                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 ">
+                      <Lottie
+                        animationData={announcement.animationData}
+                        loop
+                        autoplay
+                        style={{ width: "100%", height: "100%" }}
+                      />
+                    </div>
+
+                    <div className="relative z-10">
+                      <div className="text-3xl sm:text-5xl mb-2 sm:mb-3">
+                        {announcement.emoji}
+                      </div>
+                      <h3 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">
+                        {announcement.title}
+                      </h3>
+                      <p className="text-white text-opacity-90 text-sm sm:text-base">
+                        {announcement.desc}
+                      </p>
+                    </div>
+                    <button
+                      onClick={() => {
+                        navigate(announcement.route);
+                        localStorage.setItem(announcement.storageKey, "true");
+                      }}
+                      className="bg-white text-gray-900 font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg sm:rounded-xl text-sm sm:text-base hover:bg-opacity-90 transition-all active:scale-95 self-start mt-3 sm:mt-4 relative z-10"
+                    >
+                      {announcement.cta}
+                    </button>
+                  </div>
+                </div>
+              ))}
+
+              {/* Indicators */}
+              <div className="flex justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-4">
+                {ANNOUNCEMENTS.map((_, idx) => (
+                  <button
+                    key={idx}
+                    onClick={() => setCarouselIndex(idx)}
+                    className={`h-1.5 sm:h-2 rounded-full transition-all ${
+                      idx === carouselIndex
+                        ? "bg-gray-800 w-6 sm:w-8"
+                        : "bg-gray-300 w-1.5 sm:w-2 hover:bg-gray-400"
+                    }`}
+                  />
+                ))}
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
 
       {/* Surah of the Week Card */}
       {surah && (
         <div className="px-4 mt-3">
           <button
             onClick={() => navigate("/surah")}
-            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-4 text-left active:scale-95 transition-transform shadow-sm"
+            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-4 text-left active:scale-95 transition-transform"
           >
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
@@ -248,7 +397,7 @@ export default function Dashboard() {
             // Handle both number (traditional categories) and array (FirstThreeNames)
             // For FirstThreeNames: count how many names are fully learned (>= 33)
             const count = Array.isArray(rawCount)
-              ? rawCount.filter(c => c >= 33).length
+              ? rawCount.filter((c) => c >= 33).length
               : rawCount;
             const isDone = count >= category.target;
             const pct = Math.min((count / category.target) * 100, 100);
@@ -256,16 +405,17 @@ export default function Dashboard() {
             return (
               <div
                 key={category.id}
-                className={`rounded-xl p-3 shadow-sm transition-all ${
+                className={`rounded-xl p-3 transition-all ${
                   isDone ? "bg-white border border-green-500" : "bg-white"
                 }`}
               >
                 <div className="flex items-center justify-between mb-2">
                   <button
                     onClick={() => {
-                      const path = category.target === 3 && category.name.includes("есімі")
-                        ? `/names/${category.id}`
-                        : `/counter/${category.id}`;
+                      const path =
+                        category.target === 3 && category.name.includes("есімі")
+                          ? `/names/${category.id}`
+                          : `/counter/${category.id}`;
                       navigate(path);
                     }}
                     className="flex-1 text-left hover:opacity-80 transition-opacity"
@@ -288,9 +438,10 @@ export default function Dashboard() {
 
                 <button
                   onClick={() => {
-                    const path = category.target === 3 && category.name.includes("есімі")
-                      ? `/names/${category.id}`
-                      : `/counter/${category.id}`;
+                    const path =
+                      category.target === 3 && category.name.includes("есімі")
+                        ? `/names/${category.id}`
+                        : `/counter/${category.id}`;
                     navigate(path);
                   }}
                   className="w-full text-left hover:opacity-80 transition-opacity"

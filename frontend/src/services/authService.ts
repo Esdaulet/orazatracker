@@ -1,9 +1,14 @@
 import { api } from './api';
 
-export const registerUser = async (phone: string, password: string, displayName: string) => {
+export const registerUser = async (
+  phone: string,
+  password: string,
+  displayName: string,
+  referralCode?: string,
+) => {
   const data = await api('/auth/register', {
     method: 'POST',
-    body: JSON.stringify({ phone, password, displayName }),
+    body: JSON.stringify({ phone, password, displayName, referralCode }),
   });
 
   localStorage.setItem('token', data.token);

@@ -8,6 +8,7 @@ import taskRoutes from "./routes/tasks";
 import surahRoutes from "./routes/surah";
 import analyticsRoutes from "./routes/analytics";
 import membersRoutes from "./routes/members";
+import referralsRoutes from "./routes/referrals";
 
 setGlobalOptions({ maxInstances: 10 });
 
@@ -35,6 +36,7 @@ app.use("/tasks", taskRoutes);
 app.use("/surah", surahRoutes);
 app.use("/analytics", analyticsRoutes);
 app.use("/members", membersRoutes);
+app.use("/referrals", referralsRoutes);
 
 // Export as Firebase Cloud Function
 export const api = onRequest(app);
