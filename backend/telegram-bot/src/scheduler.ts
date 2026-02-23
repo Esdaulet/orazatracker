@@ -6,6 +6,7 @@ import {
   ASMA_KAZAKH_TRANSLIT,
   ASMA_KAZAKH_MEANING,
 } from "./asmaData";
+import { getTodayMaghrib } from "./prayerTimes";
 
 const GROUP_CHAT_ID = process.env.GROUP_CHAT_ID!;
 const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
@@ -140,6 +141,63 @@ export async function buildTodaySummary(): Promise<string> {
   }
 }
 
+// Build iftar (maghrib) message
+export function buildIftarMessage(maghribTime: string): string {
+  const numbers = getAsmaNumbersForToday();
+  const namesText = numbers
+    .map((n) => `  • *${ASMA_KAZAKH_TRANSLIT[n]}* — ${ASMA_KAZAKH_MEANING[n]}`)
+    .join("\n");
+
+  return (
+    `🌙 *Оразаңыз қабыл болсын, қадірлі жан! *\n\n` +
+    `Алла Тағала оразаңызды қабыл етіп,\n` +
+    `жасаған амалдарыңызға есепсіз сауаптан жазсын. 🤲\n\n` +
+    `Бүгінгі ізгі амалдарыңызды белгілеуді ұмытпаңыз ✨\n`
+  );
+}
+
+// Schedule iftar message using setTimeout for exact maghrib time
+function scheduleIftarMessage(bot: TelegramBot): void {
+  const maghrib = getTodayMaghrib();
+  if (!maghrib) return;
+
+  const [hours, minutes] = maghrib.split(":").map(Number);
+
+  // Maghrib is in Almaty (UTC+5), convert to UTC
+  const now = new Date();
+  const todayUTC = new Date(
+    Date.UTC(
+      now.getUTCFullYear(),
+      now.getUTCMonth(),
+      now.getUTCDate(),
+      hours - 5, // UTC+5 → UTC
+      minutes,
+      0,
+    ),
+  );
+
+  const msUntilMaghrib = todayUTC.getTime() - now.getTime();
+
+  if (msUntilMaghrib <= 0) {
+    console.log("   Iftar    → already passed today, skipping");
+    return;
+  }
+
+  setTimeout(async () => {
+    try {
+      const message = buildIftarMessage(maghrib);
+      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
+      console.log("✅ Iftar message sent:", new Date().toISOString());
+    } catch (error) {
+      console.error("❌ Iftar message failed:", error);
+    }
+  }, msUntilMaghrib);
+
+  console.log(
+    `   Iftar    → ${maghrib} Almaty (in ${Math.round(msUntilMaghrib / 60000)} min)`,
+  );
+}
+
 // Build midday reminder — motivational only, no task list
 export function buildReminderMessage(): string {
   return (
@@ -183,6 +241,14 @@ export function startScheduler(bot: TelegramBot): void {
     } catch (error) {
       console.error("❌ Night summary failed:", error);
     }
+  });
+
+  // Schedule today's iftar message
+  scheduleIftarMessage(bot);
+
+  // Every midnight Almaty (19:00 UTC) reschedule iftar for the new day
+  cron.schedule("0 19 * * *", () => {
+    scheduleIftarMessage(bot);
   });
 
   console.log("🕐 Scheduler started:");
