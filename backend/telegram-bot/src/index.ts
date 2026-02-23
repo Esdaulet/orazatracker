@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import TelegramBot from "node-telegram-bot-api";
-import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary } from "./scheduler";
+import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage } from "./scheduler";
 import {
   getAsmaNumbersForToday,
   ASMA_KAZAKH_TRANSLIT,
@@ -77,6 +77,14 @@ bot.onText(/\/testkunduzi/, async (msg) => {
   const message = buildReminderMessage();
   await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
   bot.sendMessage(msg.chat.id, "✅ Күндізгі еске салу топқа жіберілді!");
+});
+
+// /testiftar — send iftar message to group right now
+bot.onText(/\/testiftar/, async (msg) => {
+  const groupId = process.env.GROUP_CHAT_ID!;
+  const message = buildIftarMessage("17:36");
+  await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
+  bot.sendMessage(msg.chat.id, "✅ Ауыз ашар хабары топқа жіберілді!");
 });
 
 // /testkesh — send evening message to group right now
