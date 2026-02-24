@@ -102,10 +102,10 @@ const getAnnouncements = (): Announcement[] => [
 // Ramadan 2026: Feb 18 – Mar 19
 const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
 
-// Surah deadline - February 26, 2026
+// Surah deadline - February 25, 2026 (end of day)
 function getDaysUntilDeadline(): number {
   const now = new Date();
-  const deadline = new Date(2026, 1, 26, 23, 59, 59, 999); // Feb 26, 2026
+  const deadline = new Date(2026, 1, 25, 23, 59, 59, 999); // Feb 25, 2026
   const diff = Math.ceil(
     (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
   );
