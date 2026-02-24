@@ -43,10 +43,10 @@ function getDeadlineAnnouncement(): Announcement {
 
   if (daysLeft === 0) {
     desc = "Бүгін соңғы күн! Апталық сүреңізді жаттап үлгеріңіз.";
-    gradient = "from-red-700 to-red-600";
+    gradient = "from-rose-600 to-pink-600";
   } else if (daysLeft === 1) {
     desc = "Ертең дедлайн! Апталық сүреңізді жаттауды аяқтаңыз.";
-    gradient = "from-red-600 to-orange-600";
+    gradient = "from-rose-500 to-pink-500";
   }
 
   return {
