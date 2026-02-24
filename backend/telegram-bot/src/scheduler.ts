@@ -222,30 +222,22 @@ function getDaysUntilSurahDeadline(): number {
 // Build Surah deadline reminder message
 export function buildSurahDeadlineMessage(): string {
   const daysLeft = getDaysUntilSurahDeadline();
-
-  if (daysLeft <= 0) {
-    return (
-      `⏰ *Апталық сүреге дедлайн аяқталды!*\n\n` +
-      `Келесі аптаның сүресін таңдауды ұмытпаңыз 📖\n\n` +
-      `🔗 [Сүрені таңдау](${APP_URL}/surah)`
-    );
-  }
-
   let titleEmoji = "⏰";
   let urgencyText = "";
 
   if (daysLeft === 1) {
     titleEmoji = "🔴";
-    urgencyText = `\n\n⚠️ *Ертең дедлайн!* Апталық сүреңізді шапты жаттаңыз!`;
-  } else if (daysLeft === 0) {
-    titleEmoji = "🔴🔴";
-    urgencyText = `\n\n⚠️ *Бүгін соңғы күн!* Апталық сүреңізді әрі қарай оқу қажет!`;
+    urgencyText = `\n\n⚠️ *Ертең дедлайн!* Сүреңізді жаттауды аяқтауға көңіл бөліңіз.`;
+  } else if (daysLeft <= 3) {
+    urgencyText = `\n\n✨ Дедлайн жақындап қалды — сүреңізді жаттауды жалғастырыңыз.`;
   }
 
   return (
-    `${titleEmoji} *Апталық сүреге ${daysLeft} күн қалды*\n\n` +
-    `Алланың Құранын үйрену — ең үлкен сауап! 📖✨${urgencyText}\n\n` +
-    `🔗 [Сүрені таңдау](${APP_URL}/surah)`
+    `${titleEmoji} *Айтпақшы, апталық сүреге ${daysLeft} күн қалды.*\n\n` +
+    `Құранға жақын болу — жүрекке тыныштық сыйлайды 🤍📖\n\n` +
+    `Сүреңізді жаттауды ұмытпаңыз және бүгінгі амалдарыңызды белгілеңіз ✨` +
+    urgencyText +
+    `\n\n🔗 [Сүрені таңдау](${APP_URL}/surah)`
   );
 }
 
