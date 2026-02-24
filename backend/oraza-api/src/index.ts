@@ -24,6 +24,9 @@ app.use(
 
 app.use(express.json());
 
+// Handle preflight requests explicitly
+app.options("*", cors());
+
 // Health check endpoint
 app.get("/health", (_req: any, res: any) => {
   res.json({ status: "ok", message: "Oraza Backend работает!" });
