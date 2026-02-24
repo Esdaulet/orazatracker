@@ -37,15 +37,15 @@ interface Announcement {
 function getDeadlineAnnouncement(): Announcement {
   const daysLeft = getDaysUntilDeadline();
 
-  let title = "Сұраны тікеленіп біл!";
-  let desc = `Дедлайн ${daysLeft} күнге қалды. Апталық Сұраңды үйрен!`;
+  let title = "Апталық сүре";
+  let desc = `Дедлайнға ${daysLeft} күн қалды. Апталық сүреңізді жаттауды жалғастырыңыз.`;
   let gradient = "from-orange-600 to-yellow-600";
 
   if (daysLeft === 0) {
-    desc = "Бүгін соңғы күн! Апталық Сұраңды өте жылдам үйренбе!";
+    desc = "Бүгін соңғы күн! Апталық сүреңізді жаттап үлгеріңіз.";
     gradient = "from-red-700 to-red-600";
   } else if (daysLeft === 1) {
-    desc = "Ертең дедлайн! Апталық Сұраңды әрі қарай оқуды аяқта!";
+    desc = "Ертең дедлайн! Апталық сүреңізді жаттауды аяқтаңыз.";
     gradient = "from-red-600 to-orange-600";
   }
 
@@ -54,7 +54,7 @@ function getDeadlineAnnouncement(): Announcement {
     emoji: "⏰",
     title,
     desc,
-    cta: "Суралық таңдау →",
+    cta: "Сүрені таңдау →",
     route: "/surah",
     gradient,
     storageKey: "ann_surah_deadline_seen",
@@ -102,20 +102,10 @@ const getAnnouncements = (): Announcement[] => [
 // Ramadan 2026: Feb 18 – Mar 19
 const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
 
-// Surah deadline - every Friday (end of week)
-function getNextFriday(): Date {
-  const now = new Date();
-  const day = now.getDay();
-  const daysUntilFriday = (5 - day + 7) % 7 || 7; // 5 = Friday
-  const nextFriday = new Date(now);
-  nextFriday.setDate(nextFriday.getDate() + daysUntilFriday);
-  nextFriday.setHours(23, 59, 59, 999);
-  return nextFriday;
-}
-
+// Surah deadline - February 26, 2026
 function getDaysUntilDeadline(): number {
   const now = new Date();
-  const deadline = getNextFriday();
+  const deadline = new Date(2026, 1, 26, 23, 59, 59, 999); // Feb 26, 2026
   const diff = Math.ceil(
     (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
   );
