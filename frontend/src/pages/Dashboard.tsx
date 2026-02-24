@@ -33,6 +33,17 @@ interface Announcement {
 
 const ANNOUNCEMENTS: Announcement[] = [
   {
+    id: "surah_deadline",
+    emoji: "⏰",
+    title: "Сұраны тікеленіп біл!",
+    desc: "Дедлайн 2 күнге қалды. Апталық Сұраңды үйрен!",
+    cta: "Суралық таңдау →",
+    route: "/surah",
+    gradient: "from-red-600 to-orange-600",
+    storageKey: "ann_surah_deadline_seen",
+    animationData: announcementAnimation,
+  },
+  {
     id: "referral",
     emoji: "📿",
     title: "Сауап дәптері",
