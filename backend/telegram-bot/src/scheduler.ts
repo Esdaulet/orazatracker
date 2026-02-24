@@ -234,10 +234,8 @@ export function buildSurahDeadlineMessage(): string {
 
   return (
     `${titleEmoji} *Айтпақшы, апталық сүреге ${daysLeft} күн қалды.*\n\n` +
-    `Құранға жақын болу — жүрекке тыныштық сыйлайды 🤍📖\n\n` +
     `Сүреңізді жаттауды ұмытпаңыз және бүгінгі амалдарыңызды белгілеңіз ✨` +
-    urgencyText +
-    `\n\n🔗 [Сүрені таңдау](${APP_URL}/surah)`
+    urgencyText
   );
 }
 
