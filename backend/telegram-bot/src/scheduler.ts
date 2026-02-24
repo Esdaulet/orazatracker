@@ -209,15 +209,61 @@ export function buildReminderMessage(): string {
   );
 }
 
+// Calculate days until Surah deadline (February 25, 2026)
+function getDaysUntilSurahDeadline(): number {
+  const now = new Date();
+  const deadline = new Date(2026, 1, 25, 23, 59, 59, 999); // Feb 25, 2026
+  const diff = Math.ceil(
+    (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return Math.max(diff, 0);
+}
+
+// Build Surah deadline reminder message
+export function buildSurahDeadlineMessage(): string {
+  const daysLeft = getDaysUntilSurahDeadline();
+
+  if (daysLeft <= 0) {
+    return (
+      `⏰ *Апталық сүреге дедлайн аяқталды!*\n\n` +
+      `Келесі аптаның сүресін таңдауды ұмытпаңыз 📖\n\n` +
+      `🔗 [Сүрені таңдау](${APP_URL}/surah)`
+    );
+  }
+
+  let titleEmoji = "⏰";
+  let urgencyText = "";
+
+  if (daysLeft === 1) {
+    titleEmoji = "🔴";
+    urgencyText = `\n\n⚠️ *Ертең дедлайн!* Апталық сүреңізді шапты жаттаңыз!`;
+  } else if (daysLeft === 0) {
+    titleEmoji = "🔴🔴";
+    urgencyText = `\n\n⚠️ *Бүгін соңғы күн!* Апталық сүреңізді әрі қарай оқу қажет!`;
+  }
+
+  return (
+    `${titleEmoji} *Апталық сүреге ${daysLeft} күн қалды*\n\n` +
+    `Алланың Құранын үйрену — ең үлкен сауап! 📖✨${urgencyText}\n\n` +
+    `🔗 [Сүрені таңдау](${APP_URL}/surah)`
+  );
+}
+
 export function startScheduler(bot: TelegramBot): void {
   // Morning: 07:00 Almaty (UTC+5) = 02:00 UTC
   cron.schedule("0 2 * * *", async () => {
     try {
-      const message = buildMorningMessage();
-      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
+      // Send morning motivational message
+      const morningMessage = buildMorningMessage();
+      await bot.sendMessage(GROUP_CHAT_ID, morningMessage, { parse_mode: "Markdown" });
       console.log("✅ Morning message sent:", new Date().toISOString());
+
+      // Send Surah deadline reminder
+      const surahMessage = buildSurahDeadlineMessage();
+      await bot.sendMessage(GROUP_CHAT_ID, surahMessage, { parse_mode: "Markdown" });
+      console.log("✅ Surah deadline reminder sent:", new Date().toISOString());
     } catch (error) {
-      console.error("❌ Morning message failed:", error);
+      console.error("❌ Morning messages failed:", error);
     }
   });
 
@@ -252,7 +298,8 @@ export function startScheduler(bot: TelegramBot): void {
   });
 
   console.log("🕐 Scheduler started:");
-  console.log("   Morning  → 07:00 Almaty (02:00 UTC)");
-  console.log("   Midday   → 13:00 Almaty (08:00 UTC)");
-  console.log("   Night    → 21:00 Almaty (16:00 UTC)");
+  console.log("   Morning         → 07:00 Almaty (02:00 UTC)");
+  console.log("   Surah Deadline  → 07:00 Almaty (02:00 UTC)");
+  console.log("   Midday          → 13:00 Almaty (08:00 UTC)");
+  console.log("   Night           → 21:00 Almaty (16:00 UTC)");
 }
