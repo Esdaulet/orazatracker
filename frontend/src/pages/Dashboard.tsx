@@ -16,6 +16,8 @@ import { Star, CheckCircle2, Square } from "lucide-react";
 import Lottie from "lottie-react";
 import referralAnimation from "../assets/referal.json";
 import announcementAnimation from "../assets/annons.json";
+import deadline from "../assets/deadline.json";
+
 import type { Category } from "../types";
 
 // Announcements carousel data
@@ -31,18 +33,37 @@ interface Announcement {
   animationData: object;
 }
 
-const ANNOUNCEMENTS: Announcement[] = [
-  {
+// Generate dynamic deadline announcement based on days remaining
+function getDeadlineAnnouncement(): Announcement {
+  const daysLeft = getDaysUntilDeadline();
+
+  let title = "Сұраны тікеленіп біл!";
+  let desc = `Дедлайн ${daysLeft} күнге қалды. Апталық Сұраңды үйрен!`;
+  let gradient = "from-orange-600 to-yellow-600";
+
+  if (daysLeft === 0) {
+    desc = "Бүгін соңғы күн! Апталық Сұраңды өте жылдам үйренбе!";
+    gradient = "from-red-700 to-red-600";
+  } else if (daysLeft === 1) {
+    desc = "Ертең дедлайн! Апталық Сұраңды әрі қарай оқуды аяқта!";
+    gradient = "from-red-600 to-orange-600";
+  }
+
+  return {
     id: "surah_deadline",
     emoji: "⏰",
-    title: "Сұраны тікеленіп біл!",
-    desc: "Дедлайн 2 күнге қалды. Апталық Сұраңды үйрен!",
+    title,
+    desc,
     cta: "Суралық таңдау →",
     route: "/surah",
-    gradient: "from-red-600 to-orange-600",
+    gradient,
     storageKey: "ann_surah_deadline_seen",
-    animationData: announcementAnimation,
-  },
+    animationData: deadline,
+  };
+}
+
+const getAnnouncements = (): Announcement[] => [
+  getDeadlineAnnouncement(),
   {
     id: "referral",
     emoji: "📿",
@@ -81,6 +102,26 @@ const ANNOUNCEMENTS: Announcement[] = [
 // Ramadan 2026: Feb 18 – Mar 19
 const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
 
+// Surah deadline - every Friday (end of week)
+function getNextFriday(): Date {
+  const now = new Date();
+  const day = now.getDay();
+  const daysUntilFriday = (5 - day + 7) % 7 || 7; // 5 = Friday
+  const nextFriday = new Date(now);
+  nextFriday.setDate(nextFriday.getDate() + daysUntilFriday);
+  nextFriday.setHours(23, 59, 59, 999);
+  return nextFriday;
+}
+
+function getDaysUntilDeadline(): number {
+  const now = new Date();
+  const deadline = getNextFriday();
+  const diff = Math.ceil(
+    (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
+  );
+  return Math.max(diff, 0);
+}
+
 function getRamadanDay(): number {
   const now = new Date();
   const diff = Math.floor(
@@ -107,14 +148,15 @@ export default function Dashboard() {
   const today = new Date().toISOString().split("T")[0];
   const ramadanDay = getRamadanDay();
   const currentMember = newMembers[currentMemberIndex];
+  const announcements = getAnnouncements();
 
   // Auto-rotate carousel every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
-      setCarouselIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+      setCarouselIndex((prev) => (prev + 1) % announcements.length);
     }, 5000);
     return () => clearInterval(interval);
-  }, []);
+  }, [announcements]);
 
   const loadData = useCallback(async () => {
     try {
@@ -287,18 +329,18 @@ export default function Dashboard() {
               if (Math.abs(diff) > 50) {
                 if (diff > 0) {
                   // Свайп влево → следующий
-                  setCarouselIndex((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+                  setCarouselIndex((prev) => (prev + 1) % announcements.length);
                 } else {
                   // Свайп вправо → предыдущий
                   setCarouselIndex((prev) =>
-                    prev === 0 ? ANNOUNCEMENTS.length - 1 : prev - 1,
+                    prev === 0 ? announcements.length - 1 : prev - 1,
                   );
                 }
               }
             }}
           >
             <div className="relative">
-              {ANNOUNCEMENTS.map((announcement, idx) => (
+              {announcements.map((announcement, idx) => (
                 <div
                   key={announcement.id}
                   className={`transition-all duration-500 ${
@@ -344,7 +386,7 @@ export default function Dashboard() {
 
               {/* Indicators */}
               <div className="flex justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-4">
-                {ANNOUNCEMENTS.map((_, idx) => (
+                {announcements.map((_, idx) => (
                   <button
                     key={idx}
                     onClick={() => setCarouselIndex(idx)}
