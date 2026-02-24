@@ -1,7 +1,9 @@
+import { getToken } from "./authService";
+
 const BASE_URL = "https://us-central1-orazaapp.cloudfunctions.net/api";
 
 export const api = async (endpoint: string, options: RequestInit = {}) => {
-  const token = localStorage.getItem("token");
+  const token = getToken();
 
   const res = await fetch(`${BASE_URL}${endpoint}`, {
     ...options,

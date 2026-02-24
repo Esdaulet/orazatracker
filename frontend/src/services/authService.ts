@@ -1,5 +1,16 @@
 import { api } from './api';
 
+// Helper to save token to both storages (Safari fallback)
+const saveToken = (token: string) => {
+  localStorage.setItem('token', token);
+  sessionStorage.setItem('token', token);
+};
+
+// Helper to get token from either storage (exported for use in api.ts)
+export const getToken = (): string | null => {
+  return localStorage.getItem('token') || sessionStorage.getItem('token');
+};
+
 export const registerUser = async (
   phone: string,
   password: string,
@@ -11,7 +22,7 @@ export const registerUser = async (
     body: JSON.stringify({ phone, password, displayName, referralCode }),
   });
 
-  localStorage.setItem('token', data.token);
+  saveToken(data.token);
   return data.user;
 };
 
@@ -21,12 +32,13 @@ export const loginUser = async (phone: string, password: string) => {
     body: JSON.stringify({ phone, password }),
   });
 
-  localStorage.setItem('token', data.token);
+  saveToken(data.token);
   return data.user;
 };
 
 export const logoutUser = () => {
   localStorage.removeItem('token');
+  sessionStorage.removeItem('token');
   localStorage.removeItem('photoURL');
 };
 
@@ -36,7 +48,7 @@ export const getMyProfile = async () => {
 };
 
 export const getStoredUser = () => {
-  const token = localStorage.getItem('token');
+  const token = getToken();
   if (!token) return null;
 
   try {
@@ -49,7 +61,7 @@ export const getStoredUser = () => {
     );
     const payload = JSON.parse(json);
     if (payload.exp * 1000 < Date.now()) {
-      localStorage.removeItem('token');
+      logoutUser(); // Clear both storages if token expired
       return null;
     }
     return payload;
