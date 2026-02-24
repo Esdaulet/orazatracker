@@ -253,17 +253,22 @@ export function startScheduler(bot: TelegramBot): void {
   // Morning: 07:00 Almaty (UTC+5) = 02:00 UTC
   cron.schedule("0 2 * * *", async () => {
     try {
-      // Send morning motivational message
-      const morningMessage = buildMorningMessage();
-      await bot.sendMessage(GROUP_CHAT_ID, morningMessage, { parse_mode: "Markdown" });
+      const message = buildMorningMessage();
+      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
       console.log("✅ Morning message sent:", new Date().toISOString());
+    } catch (error) {
+      console.error("❌ Morning message failed:", error);
+    }
+  });
 
-      // Send Surah deadline reminder
-      const surahMessage = buildSurahDeadlineMessage();
-      await bot.sendMessage(GROUP_CHAT_ID, surahMessage, { parse_mode: "Markdown" });
+  // Surah deadline reminder: 07:01 Almaty (UTC+5) = 02:01 UTC
+  cron.schedule("1 2 * * *", async () => {
+    try {
+      const message = buildSurahDeadlineMessage();
+      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
       console.log("✅ Surah deadline reminder sent:", new Date().toISOString());
     } catch (error) {
-      console.error("❌ Morning messages failed:", error);
+      console.error("❌ Surah deadline reminder failed:", error);
     }
   });
 
@@ -299,7 +304,7 @@ export function startScheduler(bot: TelegramBot): void {
 
   console.log("🕐 Scheduler started:");
   console.log("   Morning         → 07:00 Almaty (02:00 UTC)");
-  console.log("   Surah Deadline  → 07:00 Almaty (02:00 UTC)");
+  console.log("   Surah Deadline  → 07:01 Almaty (02:01 UTC)");
   console.log("   Midday          → 13:00 Almaty (08:00 UTC)");
   console.log("   Night           → 21:00 Almaty (16:00 UTC)");
 }
