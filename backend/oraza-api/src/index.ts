@@ -9,6 +9,7 @@ import surahRoutes from "./routes/surah";
 import analyticsRoutes from "./routes/analytics";
 import membersRoutes from "./routes/members";
 import referralsRoutes from "./routes/referrals";
+import leaderboardRoutes from "./routes/leaderboard";
 
 setGlobalOptions({ maxInstances: 10 });
 
@@ -40,6 +41,7 @@ app.use("/surah", surahRoutes);
 app.use("/analytics", analyticsRoutes);
 app.use("/members", membersRoutes);
 app.use("/referrals", referralsRoutes);
+app.use("/leaderboard", leaderboardRoutes);
 
 // Export as Firebase Cloud Function
 export const api = onRequest(app);
