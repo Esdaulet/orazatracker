@@ -1,5 +1,6 @@
 import { api } from "./api";
-import { ASMA_KAZAKH_TRANSLIT, ASMA_KAZAKH_MEANING } from "./asmaData";
+import { ASMA_KAZAKH_TRANSLIT } from "../data/asmaKazakhTranslit";
+import { ASMA_KAZAKH } from "../data/asmaKazakh";
 
 export interface QuizQuestion {
   id: string;
@@ -94,7 +95,7 @@ export function generateQuiz(asmaNumbers: number[]): QuizQuestion[] {
 
       const asmaNum = randomNum;
       const kazakhName = ASMA_KAZAKH_TRANSLIT[asmaNum];
-      const meaning = ASMA_KAZAKH_MEANING[asmaNum];
+      const meaning = ASMA_KAZAKH[asmaNum];
 
       // Randomly decide question type (50/50)
       const isNameToMeaning = Math.random() > 0.5;
@@ -109,7 +110,7 @@ export function generateQuiz(asmaNumbers: number[]): QuizQuestion[] {
         if (wrongNum !== asmaNum) {
           wrongOptions.add(
             isNameToMeaning
-              ? ASMA_KAZAKH_MEANING[wrongNum]
+              ? ASMA_KAZAKH[wrongNum]
               : ASMA_KAZAKH_TRANSLIT[wrongNum]
           );
         }
