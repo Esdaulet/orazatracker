@@ -273,8 +273,8 @@ export function startScheduler(bot: TelegramBot): void {
     }
   });
 
-  // Night summary: 21:00 Almaty (UTC+5) = 16:00 UTC
-  cron.schedule("0 16 * * *", async () => {
+  // Night summary: 23:00 Almaty (UTC+5) = 18:00 UTC
+  cron.schedule("0 18 * * *", async () => {
     try {
       const message = await buildTodaySummary();
       await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
@@ -296,5 +296,5 @@ export function startScheduler(bot: TelegramBot): void {
   console.log("   Morning         → 07:00 Almaty (02:00 UTC)");
   console.log("   Surah Deadline  → 07:01 Almaty (02:01 UTC)");
   console.log("   Midday          → 13:00 Almaty (08:00 UTC)");
-  console.log("   Night           → 21:00 Almaty (16:00 UTC)");
+  console.log("   Night           → 23:00 Almaty (18:00 UTC)");
 }

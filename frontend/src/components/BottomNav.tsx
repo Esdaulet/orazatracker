@@ -1,6 +1,6 @@
 import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import { Home, Clock, Settings, User, Heart, BookOpen } from "lucide-react";
+import { Home, Settings, User, Heart, BookOpen, Brain } from "lucide-react";
 
 export default function BottomNav() {
   const navigate = useNavigate();
@@ -10,7 +10,7 @@ export default function BottomNav() {
   const tabs = [
     { path: "/dashboard", icon: Home, label: "Басты бет" },
     { path: "/community", icon: Heart, label: "Топ" },
-    { path: "/schedule", icon: Clock, label: "Күнтізбе" },
+    { path: "/quiz", icon: Brain, label: "Квиз" },
     { path: "/asma", icon: BookOpen, label: "Есімдер" },
     ...(isAdmin ? [{ path: "/admin", icon: Settings, label: "Админ" }] : []),
     { path: "/profile", icon: User, label: "Профиль" },

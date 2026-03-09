@@ -16,6 +16,7 @@ import SurahOfWeek from './pages/SurahOfWeek';
 import Analytics from './pages/Analytics';
 import AsmaAlHusna from './pages/AsmaAlHusna';
 import FirstThreeNames from './pages/FirstThreeNames';
+import Quiz from './pages/Quiz';
 import RouteTracker from './components/RouteTracker';
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -103,6 +104,7 @@ function App() {
         <Route path="/names/:categoryId" element={<ProtectedRoute><FirstThreeNames /></ProtectedRoute>} />
         <Route path="/surah" element={<ProtectedRoute><SurahOfWeek /></ProtectedRoute>} />
         <Route path="/asma" element={<ProtectedRoute><AsmaAlHusna /></ProtectedRoute>} />
+        <Route path="/quiz" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>

@@ -3,8 +3,6 @@ import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { getCategories } from "../services/categoryService";
 import { getProgress, saveProgress } from "../services/progressService";
-import { getWeekSurahs } from "../services/surahService";
-import type { WeekSurahData } from "../services/surahService";
 import {
   getUnseenNewMembers,
   markMemberAsSeen,
@@ -16,8 +14,6 @@ import { Star, CheckCircle2, Square } from "lucide-react";
 import Lottie from "lottie-react";
 import referralAnimation from "../assets/referal.json";
 import announcementAnimation from "../assets/annons.json";
-import deadline from "../assets/deadline.json";
-
 import type { Category } from "../types";
 
 // Announcements carousel data
@@ -33,37 +29,7 @@ interface Announcement {
   animationData: object;
 }
 
-// Generate dynamic deadline announcement based on days remaining
-function getDeadlineAnnouncement(): Announcement {
-  const daysLeft = getDaysUntilDeadline();
-
-  let title = "Апталық сүре";
-  let desc = `Дедлайнға ${daysLeft} күн қалды. Апталық сүреңізді жаттауды жалғастырыңыз.`;
-  let gradient = "from-orange-600 to-yellow-600";
-
-  if (daysLeft === 0) {
-    desc = "Бүгін соңғы күн! Апталық сүреңізді жаттап үлгеріңіз.";
-    gradient = "from-rose-600 to-pink-600";
-  } else if (daysLeft === 1) {
-    desc = "Ертең дедлайн! Апталық сүреңізді жаттауды аяқтаңыз.";
-    gradient = "from-rose-500 to-pink-500";
-  }
-
-  return {
-    id: "surah_deadline",
-    emoji: "⏰",
-    title,
-    desc,
-    cta: "Сүрені таңдау →",
-    route: "/surah",
-    gradient,
-    storageKey: "ann_surah_deadline_seen",
-    animationData: deadline,
-  };
-}
-
 const getAnnouncements = (): Announcement[] => [
-  getDeadlineAnnouncement(),
   {
     id: "referral",
     emoji: "📿",
@@ -102,15 +68,6 @@ const getAnnouncements = (): Announcement[] => [
 // Ramadan 2026: Feb 18 – Mar 19
 const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
 
-// Surah deadline - February 25, 2026 (end of day)
-function getDaysUntilDeadline(): number {
-  const now = new Date();
-  const deadline = new Date(2026, 1, 25, 23, 59, 59, 999); // Feb 25, 2026
-  const diff = Math.ceil(
-    (deadline.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  return Math.max(diff, 0);
-}
 
 function getRamadanDay(): number {
   const now = new Date();
@@ -129,7 +86,6 @@ export default function Dashboard() {
     {},
   );
   const [loading, setLoading] = useState(true);
-  const [surah, setSurah] = useState<WeekSurahData | null>(null);
   const [newMembers, setNewMembers] = useState<NewMember[]>([]);
   const [currentMemberIndex, setCurrentMemberIndex] = useState(0);
   const [carouselIndex, setCarouselIndex] = useState(0);
@@ -170,10 +126,6 @@ export default function Dashboard() {
       return;
     }
     loadData();
-    // Load surah independently so it doesn't block main content
-    getWeekSurahs()
-      .then(setSurah)
-      .catch(() => {});
     // Load new members
     getUnseenNewMembers()
       .then(setNewMembers)
@@ -392,35 +344,6 @@ export default function Dashboard() {
           </div>
         </div>
       </div>
-
-      {/* Surah of the Week Card */}
-      {surah && (
-        <div className="px-4 mt-3">
-          <button
-            onClick={() => navigate("/surah")}
-            className="w-full bg-gradient-to-r from-emerald-500 to-teal-600 rounded-xl p-4 text-left active:scale-95 transition-transform"
-          >
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2">
-                <span className="text-white font-bold text-sm">
-                  Апталық Сүре
-                </span>
-              </div>
-              <span className="text-emerald-200 text-xs">
-                {surah.members.filter((m) => m.surah?.learned).length} жаттады →
-              </span>
-            </div>
-            <p className="text-white font-semibold mt-1">
-              {surah.mySurah ? surah.mySurah.name : "Сүре таңдау →"}
-            </p>
-            {surah.mySurah?.learned && (
-              <span className="text-xs text-emerald-100 mt-1 inline-block">
-                ✓ Жаттадым деп белгіледің
-              </span>
-            )}
-          </button>
-        </div>
-      )}
 
       {/* Categories Grid */}
       <div className="px-4 mt-3 flex flex-col gap-2">
