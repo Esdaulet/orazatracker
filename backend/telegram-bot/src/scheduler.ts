@@ -239,6 +239,22 @@ export function buildSurahDeadlineMessage(): string {
   );
 }
 
+// Build new features announcement message
+export function buildNewFeaturesMessage(): string {
+  const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
+  return (
+    `🌙✨ *Қолданбада жаңа мүмкіндіктер!* 💛\n\n` +
+    `Осы соңғы 10 күндікте сіздер үшін екі пайдалы жаңалық:\n\n` +
+    `🧠 *Куиз ойыны*\n` +
+    `Осы уақытқа дейін жаттаған Алланың есімдерін тексеріп, өз білімдеріңізді нығайтыңыз.\n\n` +
+    `📊 *Рейтинг кестесі*\n` +
+    `Қауымдастық бетінде тек бақылау үшін екі бөлім бар:\n` +
+    `  • 🔥 Марафон — күнделікті амалдарыңыздың тұрақтылығы\n` +
+    `  • 🧠 Куиз — білімді тексеру нәтижелері\n\n` +
+    `💛 Мақсат — жарыс емес, өзіңізді дамыту мен ізгі амалдарды арттыру.\n\n`
+  );
+}
+
 export function buildRamadanLast10Message(): string {
   const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
   return (
