@@ -28,14 +28,16 @@ router.get("/asma", authMiddleware, async (
     // Get all categories to find FirstThreeNames
     const categoriesSnap = await db.ref("categories").once("value");
     const categories = categoriesSnap.val() || {};
-    const firstThreeNamesCategory = Object.values(categories).find(
-      (c: any) => c.target === 3 && c.name?.includes("есімі")
-    ) as any;
+    const firstThreeNamesEntry = Object.entries(categories).find(
+      ([_, c]: [string, any]) => c.target === 3 && c.name?.includes("есімі")
+    );
 
-    if (!firstThreeNamesCategory) {
+    if (!firstThreeNamesEntry) {
       res.json({ topList: [], userRank: null });
       return;
     }
+
+    const [categoryId] = firstThreeNamesEntry;
 
     const scores: { userId: string; displayName: string; photoURL?: string; score: number }[] =
       [];
@@ -50,7 +52,7 @@ router.get("/asma", authMiddleware, async (
 
       let totalAsmaLearned = 0;
       for (const dayProgress of Object.values(progress)) {
-        const count = (dayProgress as any)[firstThreeNamesCategory.id];
+        const count = (dayProgress as any)[categoryId];
         if (Array.isArray(count)) {
           totalAsmaLearned += count.filter((c: number) => c >= 33).length;
         }

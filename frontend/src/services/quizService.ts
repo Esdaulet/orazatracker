@@ -38,15 +38,15 @@ export async function getAvailableAsmaNumbers(): Promise<number[]> {
   const today = new Date().toISOString().split("T")[0];
 
   try {
-    const response = await api("me");
+    const response = await api("/auth/me");
     const user = response;
 
     // Get all progress to find which asma have been learned
-    const progressResponse = await api(`progress?date=${today}`);
+    const progressResponse = await api(`/tasks/progress/${today}`);
     const progress = progressResponse;
 
     // Find the FirstThreeNames category
-    const categoriesResponse = await api("categories");
+    const categoriesResponse = await api("/categories");
     const categories = categoriesResponse;
     const firstThreeNamesCategory = categories.find(
       (c: any) => c.name.includes("есімі") && c.target === 3
@@ -141,7 +141,7 @@ export function generateQuiz(asmaNumbers: number[]): QuizQuestion[] {
 export async function saveQuizResult(result: QuizResult): Promise<void> {
   try {
     const today = new Date().toISOString().split("T")[0];
-    await api(`quiz-results/${today}`, {
+    await api(`/quiz-results/${today}`, {
       method: "POST",
       body: JSON.stringify(result),
     });
@@ -154,7 +154,7 @@ export async function saveQuizResult(result: QuizResult): Promise<void> {
 // Get quiz statistics
 export async function getQuizStats(): Promise<QuizStats> {
   try {
-    const response = await api("quiz-stats");
+    const response = await api("/quiz-stats");
     return response;
   } catch (error) {
     console.error("Error fetching quiz stats:", error);
