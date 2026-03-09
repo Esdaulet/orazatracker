@@ -11,7 +11,7 @@ import {
 } from "../services/leaderboardService";
 import BottomNav from "../components/BottomNav";
 import Avatar from "../components/Avatar";
-import { Heart, BookOpen, Flame, Brain } from "lucide-react";
+import { Heart, Flame, Brain } from "lucide-react";
 
 interface CommunityMember {
   userId: string;
@@ -25,10 +25,6 @@ export default function CommunityProgress() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
   const [members, setMembers] = useState<CommunityMember[]>([]);
-  const [asmaLeaderboard, setAsmaLeaderboard] = useState<LeaderboardData>({
-    topList: [],
-    userRank: null,
-  });
   const [marathonLeaderboard, setMarathonLeaderboard] =
     useState<LeaderboardData>({ topList: [], userRank: null });
   const [quizLeaderboard, setQuizLeaderboard] = useState<LeaderboardData>({
@@ -64,7 +60,6 @@ export default function CommunityProgress() {
       ]);
 
       setMembers(progressData);
-      setAsmaLeaderboard(leaderboards.asma);
       setMarathonLeaderboard(leaderboards.marathon);
       setQuizLeaderboard(leaderboards.quiz);
     } catch (error) {

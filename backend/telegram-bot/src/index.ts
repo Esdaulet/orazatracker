@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import TelegramBot from "node-telegram-bot-api";
-import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage } from "./scheduler";
+import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage, buildRamadanLast10Message } from "./scheduler";
 import {
   getAsmaNumbersForToday,
   ASMA_KAZAKH_TRANSLIT,
@@ -93,6 +93,14 @@ bot.onText(/\/testkesh/, async (msg) => {
   const message = await buildEveningMessage();
   await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
   bot.sendMessage(msg.chat.id, "✅ Кешкі хабар топқа жіберілді!");
+});
+
+// /ramadan10 — send last 10 days of Ramadan special message to group
+bot.onText(/\/ramadan10/, async (msg) => {
+  const groupId = process.env.GROUP_CHAT_ID!;
+  const message = buildRamadanLast10Message();
+  await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
+  bot.sendMessage(msg.chat.id, "✅ Рамазанның соңғы 10 күн хабары топқа жіберілді!");
 });
 
 // Start cron scheduler

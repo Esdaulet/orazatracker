@@ -35,28 +35,7 @@ export interface QuizStats {
 
 // Get all Asma numbers that should be in the quiz pool (learned up to today)
 export async function getAvailableAsmaNumbers(): Promise<number[]> {
-  const today = new Date().toISOString().split("T")[0];
-
   try {
-    const response = await api("/auth/me");
-    const user = response;
-
-    // Get all progress to find which asma have been learned
-    const progressResponse = await api(`/tasks/progress/${today}`);
-    const progress = progressResponse;
-
-    // Find the FirstThreeNames category
-    const categoriesResponse = await api("/categories");
-    const categories = categoriesResponse;
-    const firstThreeNamesCategory = categories.find(
-      (c: any) => c.name.includes("есімі") && c.target === 3
-    );
-
-    if (!firstThreeNamesCategory) return [];
-
-    // Get progress for FirstThreeNames to see which asma have been learned
-    const learnedAsma = progress[firstThreeNamesCategory.id] || [];
-
     // Get all asma that have been shown up to today
     // Assuming 3 asma per day starting from day 1
     const today_date = new Date();
