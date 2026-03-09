@@ -1,5 +1,5 @@
 import { Router, Request, Response } from "express";
-import { db } from "../firebase";
+import { db } from "../utils/firebase";
 import { authMiddleware } from "../middleware/auth";
 
 const router = Router();
@@ -13,13 +13,11 @@ interface LeaderboardEntry {
   medal?: "🥇" | "🥈" | "🥉";
 }
 
-interface LeaderboardData {
-  topList: LeaderboardEntry[];
-  userRank: LeaderboardEntry | null;
-}
-
 // Get Asma names leaderboard (most learned names)
-router.get("/asma", authMiddleware, async (_req: Request, res: Response) => {
+router.get("/asma", authMiddleware, async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const userId = (res.locals as any).userId;
 
@@ -35,7 +33,8 @@ router.get("/asma", authMiddleware, async (_req: Request, res: Response) => {
     ) as any;
 
     if (!firstThreeNamesCategory) {
-      return res.json({ topList: [], userRank: null });
+      res.json({ topList: [], userRank: null });
+      return;
     }
 
     const scores: { userId: string; displayName: string; photoURL?: string; score: number }[] =
@@ -100,7 +99,10 @@ router.get("/asma", authMiddleware, async (_req: Request, res: Response) => {
 });
 
 // Get Marathon leaderboard (daily consistency)
-router.get("/marathon", authMiddleware, async (_req: Request, res: Response) => {
+router.get("/marathon", authMiddleware, async (
+  _req: Request,
+  res: Response
+): Promise<void> => {
   try {
     const userId = (res.locals as any).userId;
 
