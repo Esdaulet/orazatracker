@@ -31,6 +31,28 @@ interface Announcement {
 
 const getAnnouncements = (): Announcement[] => [
   {
+    id: "quiz",
+    emoji: "🧠",
+    title: "Жаңа! Куиз ойыны",
+    desc: "Үйренген есімдерді тексеріп, білімді нығайтыңыз",
+    cta: "Куизді бастау →",
+    route: "/quiz",
+    gradient: "from-green-500 to-teal-600",
+    storageKey: "ann_quiz_seen",
+    animationData: announcementAnimation,
+  },
+  {
+    id: "leaderboard",
+    emoji: "🏆",
+    title: "Жаңа! Рейтинг кестесі",
+    desc: "Есімдер, марафон және квиз бойынша кім озып жатыр?",
+    cta: "Рейтингке өту →",
+    route: "/community",
+    gradient: "from-amber-500 to-orange-600",
+    storageKey: "ann_leaderboard_seen",
+    animationData: announcementAnimation,
+  },
+  {
     id: "referral",
     emoji: "📿",
     title: "Сауап дәптері",
@@ -67,7 +89,6 @@ const getAnnouncements = (): Announcement[] => [
 
 // Ramadan 2026: Feb 18 – Mar 19
 const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
-
 
 function getRamadanDay(): number {
   const now = new Date();

@@ -10,7 +10,7 @@ export default function BottomNav() {
   const tabs = [
     { path: "/dashboard", icon: Home, label: "Басты бет" },
     { path: "/community", icon: Heart, label: "Топ" },
-    { path: "/quiz", icon: Brain, label: "Квиз" },
+    { path: "/quiz", icon: Brain, label: "Куиз" },
     { path: "/asma", icon: BookOpen, label: "Есімдер" },
     ...(isAdmin ? [{ path: "/admin", icon: Settings, label: "Админ" }] : []),
     { path: "/profile", icon: User, label: "Профиль" },

@@ -13,177 +13,122 @@ interface LeaderboardEntry {
   medal?: "🥇" | "🥈" | "🥉";
 }
 
-// Get Asma names leaderboard (most learned names)
-router.get("/asma", authMiddleware, async (
+function buildTopList(
+  scores: { userId: string; displayName: string; photoURL?: string; score: number }[],
+  currentUserId: string
+): { topList: LeaderboardEntry[]; userRank: LeaderboardEntry | null } {
+  scores.sort((a, b) => b.score - a.score);
+
+  const topList: LeaderboardEntry[] = scores.slice(0, 10).map((entry, idx) => ({
+    rank: idx + 1,
+    userId: entry.userId,
+    displayName: entry.displayName,
+    photoURL: entry.photoURL,
+    score: entry.score,
+    medal: idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : undefined,
+  }));
+
+  const userRankIndex = scores.findIndex((s) => s.userId === currentUserId);
+  let userRank: LeaderboardEntry | null = null;
+  if (userRankIndex !== -1 && userRankIndex >= 10) {
+    const s = scores[userRankIndex];
+    userRank = {
+      rank: userRankIndex + 1,
+      userId: s.userId,
+      displayName: s.displayName,
+      photoURL: s.photoURL,
+      score: s.score,
+    };
+  }
+
+  return { topList, userRank };
+}
+
+// GET /leaderboard/all — returns all 3 leaderboards in one request
+router.get("/all", authMiddleware, async (
   _req: Request,
   res: Response
 ): Promise<void> => {
   try {
     const userId = (res.locals as any).userId;
 
-    // Get all users
-    const usersSnap = await db.ref("users").once("value");
-    const users = usersSnap.val() || {};
+    // Read all data once
+    const [usersSnap, categoriesSnap, allProgressSnap, allQuizSnap] = await Promise.all([
+      db.ref("users").get(),
+      db.ref("categories").get(),
+      db.ref("progress").get(),
+      db.ref("quiz-results").get(),
+    ]);
 
-    // Get all categories to find FirstThreeNames
-    const categoriesSnap = await db.ref("categories").once("value");
+    const users = usersSnap.val() || {};
     const categories = categoriesSnap.val() || {};
+    const allProgress = allProgressSnap.val() || {};
+    const allQuizResults = allQuizSnap.val() || {};
+
+    const categoryIds = Object.keys(categories);
+
+    // Find FirstThreeNames category
     const firstThreeNamesEntry = Object.entries(categories).find(
       ([_, c]: [string, any]) => c.target === 3 && c.name?.includes("есімі")
     );
+    const asmasCategoryId = firstThreeNamesEntry ? firstThreeNamesEntry[0] : null;
 
-    if (!firstThreeNamesEntry) {
-      res.json({ topList: [], userRank: null });
-      return;
-    }
+    const asmaScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
+    const marathonScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
+    const quizScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
 
-    const [categoryId] = firstThreeNamesEntry;
-
-    const scores: { userId: string; displayName: string; photoURL?: string; score: number }[] =
-      [];
-
-    // Calculate scores for all users
     for (const [uid, userData] of Object.entries(users)) {
       if ((userData as any).role === "admin") continue;
 
-      // Get total learned asma (sum of all progress for FirstThreeNames across all days)
-      const progressSnap = await db.ref(`progress/${uid}`).once("value");
-      const progress = progressSnap.val() || {};
+      const displayName = (userData as any).displayName || "User";
+      const photoURL = (userData as any).photoURL;
+      const userProgress = allProgress[uid] || {};
+      const userQuiz = allQuizResults[uid] || {};
 
+      // Asma: count total learned names
       let totalAsmaLearned = 0;
-      for (const dayProgress of Object.values(progress)) {
-        const count = (dayProgress as any)[categoryId];
-        if (Array.isArray(count)) {
-          totalAsmaLearned += count.filter((c: number) => c >= 33).length;
+      if (asmasCategoryId) {
+        for (const dayProgress of Object.values(userProgress)) {
+          const count = (dayProgress as any)[asmasCategoryId];
+          if (Array.isArray(count)) {
+            totalAsmaLearned += count.filter((c: number) => c >= 33).length;
+          }
         }
       }
+      asmaScores.push({ userId: uid, displayName, photoURL, score: totalAsmaLearned });
 
-      scores.push({
-        userId: uid,
-        displayName: (userData as any).displayName || "User",
-        photoURL: (userData as any).photoURL,
-        score: totalAsmaLearned,
-      });
-    }
-
-    // Sort by score descending
-    scores.sort((a, b) => b.score - a.score);
-
-    // Get top 10 with medals
-    const topList: LeaderboardEntry[] = scores.slice(0, 10).map((entry, idx) => ({
-      rank: idx + 1,
-      userId: entry.userId,
-      displayName: entry.displayName,
-      photoURL: entry.photoURL,
-      score: entry.score,
-      medal: idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : undefined,
-    }));
-
-    // Find user's rank
-    const userRankIndex = scores.findIndex((s) => s.userId === userId);
-    let userRank: LeaderboardEntry | null = null;
-    if (userRankIndex !== -1 && userRankIndex >= 10) {
-      const userScore = scores[userRankIndex];
-      userRank = {
-        rank: userRankIndex + 1,
-        userId: userScore.userId,
-        displayName: userScore.displayName,
-        photoURL: userScore.photoURL,
-        score: userScore.score,
-      };
-    }
-
-    res.json({ topList, userRank });
-  } catch (error) {
-    console.error("Error fetching asma leaderboard:", error);
-    res.status(500).json({ error: "Failed to fetch leaderboard" });
-  }
-});
-
-// Get Marathon leaderboard (daily consistency)
-router.get("/marathon", authMiddleware, async (
-  _req: Request,
-  res: Response
-): Promise<void> => {
-  try {
-    const userId = (res.locals as any).userId;
-
-    // Get all users
-    const usersSnap = await db.ref("users").once("value");
-    const users = usersSnap.val() || {};
-
-    // Get all categories
-    const categoriesSnap = await db.ref("categories").once("value");
-    const categories = categoriesSnap.val() || {};
-    const categoryIds = Object.keys(categories);
-
-    const scores: { userId: string; displayName: string; photoURL?: string; score: number }[] =
-      [];
-
-    // Calculate consistency score for each user
-    for (const [uid, userData] of Object.entries(users)) {
-      if ((userData as any).role === "admin") continue;
-
-      // Count days where user completed all tasks
-      const progressSnap = await db.ref(`progress/${uid}`).once("value");
-      const progress = progressSnap.val() || {};
-
+      // Marathon: count fully completed days
       let completedDays = 0;
-      let totalDays = 0;
-
-      for (const dayProgress of Object.values(progress)) {
+      for (const dayProgress of Object.values(userProgress)) {
         if (Object.keys(dayProgress as any).length === 0) continue;
-
-        totalDays++;
         const allDone = categoryIds.every((catId) => {
           const count = (dayProgress as any)[catId];
           const cat = categories[catId] as any;
           return count !== undefined && Number(count) >= cat.target;
         });
-
         if (allDone) completedDays++;
       }
+      marathonScores.push({ userId: uid, displayName, photoURL, score: completedDays });
 
-      // Score = days completed
-      scores.push({
-        userId: uid,
-        displayName: (userData as any).displayName || "User",
-        photoURL: (userData as any).photoURL,
-        score: completedDays,
-      });
+      // Quiz: best percentage
+      let bestScore = 0;
+      for (const result of Object.values(userQuiz)) {
+        const r = result as any;
+        if (r && typeof r.percentage === "number" && r.percentage > bestScore) {
+          bestScore = r.percentage;
+        }
+      }
+      quizScores.push({ userId: uid, displayName, photoURL, score: bestScore });
     }
 
-    // Sort by score descending
-    scores.sort((a, b) => b.score - a.score);
-
-    // Get top 10 with medals
-    const topList: LeaderboardEntry[] = scores.slice(0, 10).map((entry, idx) => ({
-      rank: idx + 1,
-      userId: entry.userId,
-      displayName: entry.displayName,
-      photoURL: entry.photoURL,
-      score: entry.score,
-      medal: idx === 0 ? "🥇" : idx === 1 ? "🥈" : idx === 2 ? "🥉" : undefined,
-    }));
-
-    // Find user's rank
-    const userRankIndex = scores.findIndex((s) => s.userId === userId);
-    let userRank: LeaderboardEntry | null = null;
-    if (userRankIndex !== -1 && userRankIndex >= 10) {
-      const userScore = scores[userRankIndex];
-      userRank = {
-        rank: userRankIndex + 1,
-        userId: userScore.userId,
-        displayName: userScore.displayName,
-        photoURL: userScore.photoURL,
-        score: userScore.score,
-      };
-    }
-
-    res.json({ topList, userRank });
+    res.json({
+      asma: buildTopList(asmaScores, userId),
+      marathon: buildTopList(marathonScores, userId),
+      quiz: buildTopList(quizScores, userId),
+    });
   } catch (error) {
-    console.error("Error fetching marathon leaderboard:", error);
-    res.status(500).json({ error: "Failed to fetch leaderboard" });
+    console.error("Error fetching leaderboards:", error instanceof Error ? error.message : error);
+    res.status(500).json({ error: error instanceof Error ? error.message : "Failed to fetch leaderboards" });
   }
 });
 

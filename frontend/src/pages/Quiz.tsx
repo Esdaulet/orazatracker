@@ -1,7 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
-import BottomNav from "../components/BottomNav";
 import { ChevronLeft, CheckCircle2, XCircle } from "lucide-react";
 import {
   getAvailableAsmaNumbers,
@@ -34,7 +33,6 @@ export default function Quiz() {
       try {
         const asmaNumbers = await getAvailableAsmaNumbers();
         if (asmaNumbers.length === 0) {
-          // No asma available yet
           setLoading(false);
           return;
         }
@@ -42,7 +40,7 @@ export default function Quiz() {
         const generatedQuestions = generateQuiz(asmaNumbers);
         setQuestions(generatedQuestions);
       } catch (error) {
-        console.error("Error initializing quiz:", error);
+        console.error("Қате пайда болды:", error);
       } finally {
         setLoading(false);
       }
@@ -77,7 +75,6 @@ export default function Quiz() {
   };
 
   const finishQuiz = async () => {
-    // Calculate score
     let correctCount = 0;
     const answers = questions.map((q) => {
       const isCorrect = selectedAnswers[q.id] === q.correctAnswer;
@@ -93,7 +90,6 @@ export default function Quiz() {
     const percentage = Math.round((correctCount / questions.length) * 100);
     setScore(correctCount);
 
-    // Save result
     const result: QuizResult = {
       date: new Date().toISOString().split("T")[0],
       score: correctCount,
@@ -105,7 +101,7 @@ export default function Quiz() {
     try {
       await saveQuizResult(result);
     } catch (error) {
-      console.error("Error saving quiz result:", error);
+      console.error("Нәтижені сақтау кезінде қате:", error);
     }
 
     setShowResults(true);
@@ -113,11 +109,44 @@ export default function Quiz() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600 mx-auto mb-3"></div>
-          <p className="text-gray-600">Квиз дайындалып жатыр...</p>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
+        <div className="px-4 pt-6">
+          <div className="h-6 w-20 bg-indigo-200 rounded animate-pulse mb-6" />
         </div>
+
+        {/* Progress bar skeleton */}
+        <div className="px-4 mb-6">
+          <div className="flex justify-between mb-2">
+            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-10 bg-gray-200 rounded animate-pulse" />
+          </div>
+          <div className="w-full bg-gray-200 rounded-full h-2">
+            <div className="bg-indigo-300 h-2 rounded-full w-1/4 animate-pulse" />
+          </div>
+        </div>
+
+        {/* Question card skeleton */}
+        <div className="px-4">
+          <div className="bg-white rounded-2xl p-6 shadow-lg">
+            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse mb-4" />
+            <div className="h-6 w-full bg-gray-200 rounded animate-pulse mb-2" />
+            <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mb-6" />
+
+            {/* Options skeleton */}
+            <div className="space-y-3 mb-6">
+              {[1, 2, 3, 4].map((i) => (
+                <div key={i} className="h-14 w-full bg-gray-100 rounded-lg animate-pulse" />
+              ))}
+            </div>
+
+            {/* Buttons skeleton */}
+            <div className="flex gap-3">
+              <div className="flex-1 h-12 bg-gray-200 rounded-lg animate-pulse" />
+              <div className="flex-1 h-12 bg-indigo-200 rounded-lg animate-pulse" />
+            </div>
+          </div>
+        </div>
+
       </div>
     );
   }
@@ -131,17 +160,17 @@ export default function Quiz() {
             className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6"
           >
             <ChevronLeft size={20} />
-            Назад
+            Артқа
           </button>
         </div>
 
         <div className="px-4 text-center mt-20">
           <div className="text-6xl mb-4">📖</div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Әлі есім жоқ
+            Есімдер әлі жоқ
           </h2>
           <p className="text-gray-600 mb-6">
-            Квизге өту үшін алдымен Алланың есімдерін үйрену қажет
+            Куизге өту үшін алдымен Алланың 99 есімін үйрену қажет
           </p>
           <button
             onClick={() => navigate("/asma")}
@@ -163,7 +192,7 @@ export default function Quiz() {
             className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6"
           >
             <ChevronLeft size={20} />
-            Назад
+            Артқа
           </button>
         </div>
 
@@ -173,13 +202,13 @@ export default function Quiz() {
               {score === questions.length ? "🎉" : score >= 7 ? "👏" : "💪"}
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Квиз аяқталды!
+              Куиз аяқталды!
             </h2>
             <div className="text-5xl font-bold text-indigo-600 my-4">
               {score}/{questions.length}
             </div>
             <p className="text-gray-600 text-lg mb-8">
-              Сіздің нәтижесі: {Math.round((score / questions.length) * 100)}%
+              Нәтиже: {Math.round((score / questions.length) * 100)}%
             </p>
 
             <div className="space-y-2 mb-8">
@@ -189,26 +218,42 @@ export default function Quiz() {
                 return (
                   <div
                     key={q.id}
-                    className={`p-3 rounded-lg text-left ${
-                      isCorrect ? "bg-green-50" : "bg-red-50"
-                    }`}
+                    className={`p-3 rounded-lg text-left ${isCorrect ? "bg-green-50" : "bg-red-50"}`}
                   >
                     <div className="flex items-start gap-3">
                       {isCorrect ? (
-                        <CheckCircle2 size={20} className="text-green-600 mt-1" />
+                        <CheckCircle2
+                          size={20}
+                          className="text-green-600 mt-1"
+                        />
                       ) : (
                         <XCircle size={20} className="text-red-600 mt-1" />
                       )}
                       <div className="flex-1 text-sm">
                         <p className="font-semibold text-gray-900">
-                          {idx + 1}. {q.type === "name-to-meaning" ? q.kazakhName : q.meaning}
+                          {idx + 1}.{" "}
+                          {q.type === "name-to-meaning"
+                            ? q.kazakhName
+                            : q.meaning}
                         </p>
                         <p className="text-gray-600">
-                          Таңдаған: <span className={isCorrect ? "text-green-600 font-semibold" : "text-red-600"}>{answer}</span>
+                          Таңдаған:{" "}
+                          <span
+                            className={
+                              isCorrect
+                                ? "text-green-600 font-semibold"
+                                : "text-red-600"
+                            }
+                          >
+                            {answer}
+                          </span>
                         </p>
                         {!isCorrect && (
                           <p className="text-gray-600">
-                            Дұрысы: <span className="text-green-600 font-semibold">{q.correctAnswer}</span>
+                            Дұрыс жауап:{" "}
+                            <span className="text-green-600 font-semibold">
+                              {q.correctAnswer}
+                            </span>
                           </p>
                         )}
                       </div>
@@ -238,7 +283,7 @@ export default function Quiz() {
           className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6"
         >
           <ChevronLeft size={20} />
-          Назад
+          Артқа
         </button>
       </div>
 
@@ -265,14 +310,14 @@ export default function Quiz() {
       {/* Question Card */}
       <div className="px-4">
         <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="text-4xl mb-4">
+          <div className="text-2xl mb-4">
             {currentQuestion.type === "name-to-meaning" ? "📖" : "✨"}
           </div>
 
-          <h3 className="text-2xl font-bold text-gray-900 mb-6">
+          <h3 className="text-xl font-bold text-gray-900 mb-6">
             {currentQuestion.type === "name-to-meaning"
-              ? `"${currentQuestion.kazakhName}" дегенің мағынасы не?`
-              : `"${currentQuestion.meaning}" дегенің есімі не?`}
+              ? `"${currentQuestion.kazakhName}" дегеннің мағынасы қандай?`
+              : `"${currentQuestion.meaning}" дегеннің есімі қандай?`}
           </h3>
 
           {/* Options */}
@@ -324,7 +369,6 @@ export default function Quiz() {
         </div>
       </div>
 
-      <BottomNav />
     </div>
   );
 }

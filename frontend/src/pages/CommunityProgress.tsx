@@ -6,13 +6,12 @@ import {
   getCachedCommunityProgress,
 } from "../services/communityService";
 import {
-  getAsmaLeaderboard,
-  getMarathonLeaderboard,
+  getAllLeaderboards,
   type LeaderboardData,
 } from "../services/leaderboardService";
 import BottomNav from "../components/BottomNav";
 import Avatar from "../components/Avatar";
-import { Heart, BookOpen, Flame } from "lucide-react";
+import { Heart, BookOpen, Flame, Brain } from "lucide-react";
 
 interface CommunityMember {
   userId: string;
@@ -32,10 +31,14 @@ export default function CommunityProgress() {
   });
   const [marathonLeaderboard, setMarathonLeaderboard] =
     useState<LeaderboardData>({ topList: [], userRank: null });
+  const [quizLeaderboard, setQuizLeaderboard] = useState<LeaderboardData>({
+    topList: [],
+    userRank: null,
+  });
   const [loading, setLoading] = useState(true);
-  const [activeTab, setActiveTab] = useState<"progress" | "asma" | "marathon">(
-    "progress"
-  );
+  const [activeTab, setActiveTab] = useState<
+    "progress" | "asma" | "marathon" | "quiz"
+  >("progress");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -55,15 +58,15 @@ export default function CommunityProgress() {
     }
 
     try {
-      const [progressData, asmaData, marathonData] = await Promise.all([
+      const [progressData, leaderboards] = await Promise.all([
         getCommunityProgress(today),
-        getAsmaLeaderboard(),
-        getMarathonLeaderboard(),
+        getAllLeaderboards(),
       ]);
 
       setMembers(progressData);
-      setAsmaLeaderboard(asmaData);
-      setMarathonLeaderboard(marathonData);
+      setAsmaLeaderboard(leaderboards.asma);
+      setMarathonLeaderboard(leaderboards.marathon);
+      setQuizLeaderboard(leaderboards.quiz);
     } catch (error) {
       console.error("Деректерді жүктеу кезінде қате:", error);
     } finally {
@@ -83,10 +86,14 @@ export default function CommunityProgress() {
         isUserRank ? "bg-indigo-50 border-2 border-indigo-300" : "bg-gray-50"
       }`}
     >
-      <div className="text-2xl font-bold text-gray-400 w-8 text-center">
+      <div className="text-xl font-bold text-gray-400 w-8 text-center">
         {entry.medal || `#${entry.rank}`}
       </div>
-      <Avatar photoURL={entry.photoURL} displayName={entry.displayName} size="sm" />
+      <Avatar
+        photoURL={entry.photoURL}
+        displayName={entry.displayName}
+        size="sm"
+      />
       <div className="flex-1">
         <p className="font-semibold text-gray-900">{entry.displayName}</p>
       </div>
@@ -152,17 +159,17 @@ export default function CommunityProgress() {
           >
             Бүгін
           </button>
-          <button
-            onClick={() => setActiveTab("asma")}
-            className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
-              activeTab === "asma"
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-gray-600"
-            }`}
-          >
-            <BookOpen size={18} />
-            Есімдер
-          </button>
+          {/* <button
+                onClick={() => setActiveTab("asma")}
+                className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
+                  activeTab === "asma"
+                    ? "border-indigo-600 text-indigo-600"
+                    : "border-transparent text-gray-600"
+                }`}
+              >
+                <BookOpen size={18} />
+                Есімдер
+              </button> */}
           <button
             onClick={() => setActiveTab("marathon")}
             className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
@@ -173,6 +180,17 @@ export default function CommunityProgress() {
           >
             <Flame size={18} />
             Марафон
+          </button>
+          <button
+            onClick={() => setActiveTab("quiz")}
+            className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
+              activeTab === "quiz"
+                ? "border-indigo-600 text-indigo-600"
+                : "border-transparent text-gray-600"
+            }`}
+          >
+            <Brain size={18} />
+            Куиз
           </button>
         </div>
       </div>
@@ -245,8 +263,7 @@ export default function CommunityProgress() {
             )}
           </>
         )}
-
-        {/* Tab: Asma Leaderboard */}
+        {/* Tab: Asma Leaderboard
         {activeTab === "asma" && (
           <>
             <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 mb-4">
@@ -255,7 +272,7 @@ export default function CommunityProgress() {
                 Есімдерді үйрену рейтингі
               </h3>
               <p className="text-sm text-gray-600">
-                Ең көп Алланың есімдерін үйренгендер
+                Ең көп Алланың есімдерін үйренген қолданушылар
               </p>
             </div>
 
@@ -271,7 +288,7 @@ export default function CommunityProgress() {
                 ))}
                 {asmaLeaderboard.userRank &&
                   !asmaLeaderboard.topList.find(
-                    (e) => e.userId === asmaLeaderboard.userRank?.userId
+                    (e) => e.userId === asmaLeaderboard.userRank?.userId,
                   ) && (
                     <div className="mt-6 pt-6 border-t-2 border-indigo-200">
                       <p className="text-sm text-gray-600 mb-2 font-semibold">
@@ -286,7 +303,7 @@ export default function CommunityProgress() {
               </div>
             )}
           </>
-        )}
+        )} */}
 
         {/* Tab: Marathon Leaderboard */}
         {activeTab === "marathon" && (
@@ -297,7 +314,7 @@ export default function CommunityProgress() {
                 Марафон рейтингі
               </h3>
               <p className="text-sm text-gray-600">
-                Ең ұзақ ретін ұстаған пользователи
+                Ең ұзақ сериялық күндер қатарын сақтаған қолданушылар
               </p>
             </div>
 
@@ -313,7 +330,7 @@ export default function CommunityProgress() {
                 ))}
                 {marathonLeaderboard.userRank &&
                   !marathonLeaderboard.topList.find(
-                    (e) => e.userId === marathonLeaderboard.userRank?.userId
+                    (e) => e.userId === marathonLeaderboard.userRank?.userId,
                   ) && (
                     <div className="mt-6 pt-6 border-t-2 border-indigo-200">
                       <p className="text-sm text-gray-600 mb-2 font-semibold">
@@ -321,6 +338,48 @@ export default function CommunityProgress() {
                       </p>
                       <LeaderboardCard
                         entry={marathonLeaderboard.userRank}
+                        isUserRank
+                      />
+                    </div>
+                  )}
+              </div>
+            )}
+          </>
+        )}
+
+        {/* Tab: Quiz Leaderboard */}
+        {activeTab === "quiz" && (
+          <>
+            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4 mb-4">
+              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
+                <Brain size={20} />
+                Куиз рейтингі
+              </h3>
+              <p className="text-sm text-gray-600">
+                Ең жоғары квиз ұпайлары бар қолданушылар
+              </p>
+            </div>
+
+            {quizLeaderboard.topList.length === 0 ? (
+              <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
+                <Brain size={48} className="mx-auto mb-3 text-gray-300" />
+                <p className="text-gray-700 font-medium">Әлі деректер жоқ</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {quizLeaderboard.topList.map((entry) => (
+                  <LeaderboardCard key={entry.userId} entry={entry} />
+                ))}
+                {quizLeaderboard.userRank &&
+                  !quizLeaderboard.topList.find(
+                    (e) => e.userId === quizLeaderboard.userRank?.userId,
+                  ) && (
+                    <div className="mt-6 pt-6 border-t-2 border-indigo-200">
+                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                        Сіздің орныңыз
+                      </p>
+                      <LeaderboardCard
+                        entry={quizLeaderboard.userRank}
                         isUserRank
                       />
                     </div>
@@ -343,7 +402,9 @@ export default function CommunityProgress() {
       )}
 
       {/* Motivation for leaderboards */}
-      {(activeTab === "asma" || activeTab === "marathon") && (
+      {(activeTab === "asma" ||
+        activeTab === "marathon" ||
+        activeTab === "quiz") && (
         <div className="px-4 pb-6">
           <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200">
             <p className="text-sm text-blue-900 text-center italic">

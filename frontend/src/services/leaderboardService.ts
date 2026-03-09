@@ -14,24 +14,20 @@ export interface LeaderboardData {
   userRank: LeaderboardEntry | null;
 }
 
-// Get leaderboard for learned names (Asma)
-export async function getAsmaLeaderboard(): Promise<LeaderboardData> {
-  try {
-    const response = await api("/leaderboard/asma");
-    return response;
-  } catch (error) {
-    console.error("Error fetching asma leaderboard:", error);
-    return { topList: [], userRank: null };
-  }
+export interface AllLeaderboards {
+  asma: LeaderboardData;
+  marathon: LeaderboardData;
+  quiz: LeaderboardData;
 }
 
-// Get leaderboard for daily consistency (Marathon)
-export async function getMarathonLeaderboard(): Promise<LeaderboardData> {
+// Get all leaderboards in one request
+export async function getAllLeaderboards(): Promise<AllLeaderboards> {
   try {
-    const response = await api("/leaderboard/marathon");
+    const response = await api("/leaderboard/all");
     return response;
   } catch (error) {
-    console.error("Error fetching marathon leaderboard:", error);
-    return { topList: [], userRank: null };
+    console.error("Error fetching leaderboards:", error);
+    const empty = { topList: [], userRank: null };
+    return { asma: empty, marathon: empty, quiz: empty };
   }
 }
