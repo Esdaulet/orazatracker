@@ -65,8 +65,6 @@ router.get("/all", authMiddleware, async (
     const allProgress = allProgressSnap.val() || {};
     const allQuizResults = allQuizSnap.val() || {};
 
-    const categoryIds = Object.keys(categories);
-
     // Find FirstThreeNames category
     const firstThreeNamesEntry = Object.entries(categories).find(
       ([_, c]: [string, any]) => c.target === 3 && c.name?.includes("есімі")
@@ -97,11 +95,22 @@ router.get("/all", authMiddleware, async (
       }
       asmaScores.push({ userId: uid, displayName, photoURL, score: totalAsmaLearned });
 
-      // Marathon: count fully completed days
+      // Marathon: count fully completed days.
+      // For each day, only require categories that existed on that day
+      // (checked via createdAt). This prevents newly added categories from
+      // retroactively invalidating previously completed days.
       let completedDays = 0;
-      for (const dayProgress of Object.values(userProgress)) {
+      for (const [dateStr, dayProgress] of Object.entries(userProgress)) {
         if (Object.keys(dayProgress as any).length === 0) continue;
-        const allDone = categoryIds.every((catId) => {
+
+        const dayEndTimestamp = new Date(dateStr).getTime() + 86400000;
+        const activeCatIds = Object.entries(categories)
+          .filter(([_, cat]: [string, any]) => ((cat.createdAt as number) || 0) <= dayEndTimestamp)
+          .map(([catId]) => catId);
+
+        if (activeCatIds.length === 0) continue;
+
+        const allDone = activeCatIds.every((catId) => {
           const count = (dayProgress as any)[catId];
           const cat = categories[catId] as any;
           return count !== undefined && Number(count) >= cat.target;
