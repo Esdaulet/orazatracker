@@ -5,6 +5,24 @@ import { useAuthStore } from "../store/authStore";
 import { Eye, EyeOff } from "lucide-react";
 import { markMemberAsNew } from "../services/newMembersService";
 
+const BG_STYLE = {
+  backgroundImage: "url('/6.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
+
+const inputStyle: React.CSSProperties = {
+  background: "rgba(255,255,255,0.08)",
+  border: "1px solid rgba(255,255,255,0.2)",
+  borderRadius: "12px",
+  color: "white",
+  outline: "none",
+  width: "100%",
+  padding: "10px 14px",
+  fontSize: "15px",
+};
+
 export default function Register() {
   const [displayName, setDisplayName] = useState("");
   const [phone, setPhone] = useState("");
@@ -20,11 +38,8 @@ export default function Register() {
   const [searchParams] = useSearchParams();
 
   useEffect(() => {
-    // Auto-fill referral code from URL parameter
     const refParam = searchParams.get("ref");
-    if (refParam) {
-      setReferralCode(refParam);
-    }
+    if (refParam) setReferralCode(refParam);
   }, [searchParams]);
 
   const formatPhone = (value: string) => {
@@ -34,20 +49,13 @@ export default function Register() {
     if (digits.length <= 7)
       return `${digits.slice(0, 1)} ${digits.slice(1, 4)} ${digits.slice(4)}`;
     if (digits.length <= 9)
-      return `${digits.slice(0, 1)} ${digits.slice(1, 4)} ${digits.slice(
-        4,
-        7,
-      )} ${digits.slice(7)}`;
-    return `${digits.slice(0, 1)} ${digits.slice(1, 4)} ${digits.slice(
-      4,
-      7,
-    )} ${digits.slice(7, 9)} ${digits.slice(9)}`;
+      return `${digits.slice(0, 1)} ${digits.slice(1, 4)} ${digits.slice(4, 7)} ${digits.slice(7)}`;
+    return `${digits.slice(0, 1)} ${digits.slice(1, 4)} ${digits.slice(4, 7)} ${digits.slice(7, 9)} ${digits.slice(9)}`;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError("");
-
     if (password !== confirmPassword) {
       setError("Құпиясөздер сәйкес келмейді");
       return;
@@ -56,7 +64,6 @@ export default function Register() {
       setError("Құпиясөз кемінде 6 таңбадан тұруы керек");
       return;
     }
-
     setLoading(true);
     try {
       const user = await registerUser(
@@ -72,7 +79,6 @@ export default function Register() {
         displayName,
         isAdmin: storedUser?.isAdmin || false,
       });
-      // Mark this user as new
       await markMemberAsNew();
       navigate("/dashboard");
     } catch (err: any) {
@@ -87,16 +93,28 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center p-4">
-      <div className="bg-white rounded-lg shadow-xl p-8 w-full max-w-md">
-        <h1 className="text-3xl font-bold text-center text-indigo-900 mb-2">
-          Oraza App
-        </h1>
-        <p className="text-center text-gray-600 mb-8">Бізге қосылыңыз</p>
+    <div
+      className="min-h-screen flex items-center justify-center p-4 relative"
+      style={BG_STYLE}
+    >
+      <div className="absolute inset-0 bg-black/55" />
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+      <div
+        className="relative z-10 w-full max-w-sm rounded-3xl p-7"
+        style={{
+          background: "rgba(255,255,255,0.1)",
+          backdropFilter: "blur(5px)",
+          border: "1px solid rgba(255,255,255,0.2)",
+        }}
+      >
+        <div className="text-center mb-6">
+          <h1 className="text-2xl font-bold text-white">Oraza App</h1>
+          <p className="text-white/50 text-sm mt-1">Бізге қосылыңыз</p>
+        </div>
+
+        <form onSubmit={handleSubmit} className="space-y-3.5">
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">
               Аты-жөні
             </label>
             <input
@@ -104,105 +122,119 @@ export default function Register() {
               value={displayName}
               onChange={(e) => setDisplayName(e.target.value)}
               required
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+              style={inputStyle}
               placeholder="Атыңызды енгізіңіз"
+              className="placeholder-white/80"
             />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">
               Телефон нөмірі
             </label>
-            <div className="flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500">
-              <input
-                type="tel"
-                value={phone}
-                onChange={(e) => setPhone(formatPhone(e.target.value))}
-                required
-                className="flex-1 px-3 py-2 outline-none rounded-lg"
-                placeholder="7 777 777 77 77"
-              />
-            </div>
+            <input
+              type="tel"
+              value={phone}
+              onChange={(e) => setPhone(formatPhone(e.target.value))}
+              required
+              style={inputStyle}
+              placeholder="7 777 777 77 77"
+              className="placeholder-white/80"
+            />
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
-              Шақыру коды (міндетті емес)
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">
+              Шақыру коды <span className="normal-case">(міндетті емес)</span>
             </label>
             <input
               type="text"
               value={referralCode}
               onChange={(e) => setReferralCode(e.target.value.toUpperCase())}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
-              placeholder="Шақыру кодын енгізіңіз, мысалы: ABC123"
+              style={inputStyle}
+              placeholder="ABC123"
+              className="placeholder-white/80"
             />
-            <p className="text-xs text-gray-500 mt-1">
-              Егер сізді біреу шақырса, оның кодын енгізіңіз
-            </p>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">
               Құпиясөз
             </label>
-            <div className="flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="relative">
               <input
                 type={showPassword ? "text" : "password"}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="flex-1 px-4 py-2 outline-none rounded-lg"
+                style={{ ...inputStyle, paddingRight: "44px" }}
                 placeholder="••••••••"
+                className="placeholder-white/80"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="px-3 py-2 text-gray-500 hover:text-gray-700 transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
           <div>
-            <label className="block text-sm font-medium text-gray-700 mb-1">
+            <label className="block text-xs font-medium text-white/60 mb-1.5 uppercase tracking-wide">
               Құпиясөзді қайталаңыз
             </label>
-            <div className="flex items-center border border-gray-300 rounded-lg focus-within:ring-2 focus-within:ring-indigo-500">
+            <div className="relative">
               <input
                 type={showConfirmPassword ? "text" : "password"}
                 value={confirmPassword}
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 required
-                className="flex-1 px-4 py-2 outline-none rounded-lg"
+                style={{ ...inputStyle, paddingRight: "44px" }}
                 placeholder="••••••••"
+                className="placeholder-white/80"
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                className="px-3 py-2 text-gray-500 hover:text-gray-700 transition"
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-white/40 hover:text-white/70 transition"
               >
-                {showConfirmPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                {showConfirmPassword ? <EyeOff size={18} /> : <Eye size={18} />}
               </button>
             </div>
           </div>
 
-          {error && <div className="text-red-500 text-sm">{error}</div>}
+          {error && (
+            <div
+              className="text-red-300 text-sm px-3 py-2 rounded-xl"
+              style={{
+                background: "rgba(239,68,68,0.15)",
+                border: "1px solid rgba(239,68,68,0.25)",
+              }}
+            >
+              {error}
+            </div>
+          )}
 
           <button
             type="submit"
             disabled={loading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2 px-4 rounded-lg transition disabled:opacity-50"
+            className="w-full font-bold py-3 rounded-xl text-white transition-all active:scale-95 disabled:opacity-50 mt-1"
+            style={{
+              background: "rgba(255,255,255,0.18)",
+              border: "1px solid rgba(255,255,255,0.3)",
+            }}
           >
             {loading ? "Тіркелуде..." : "Тіркелу"}
           </button>
         </form>
 
-        <p className="text-center text-gray-600 mt-6">
+        <p className="text-center text-white/50 text-sm mt-5">
           Аккаунтыңыз бар ма?{" "}
           <Link
             to="/login"
-            className="text-indigo-600 hover:text-indigo-700 font-medium"
+            className="text-white font-semibold hover:text-white/80 transition"
           >
             Кіру
           </Link>

@@ -15,6 +15,25 @@ interface AsmaName {
   };
 }
 
+const BG_STYLE = {
+  backgroundImage: "url('/masjid1.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
+
+const glass = {
+  background: "rgba(255,255,255,0.1)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.18)",
+};
+
+const glassDark = {
+  background: "rgba(0,0,0,0.3)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.12)",
+};
+
 export default function AsmaAlHusna() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
@@ -25,10 +44,8 @@ export default function AsmaAlHusna() {
   const [cardIndex, setCardIndex] = useState(0);
   const [isFlipped, setIsFlipped] = useState(false);
 
-  const START_DATE = new Date("2026-02-19");
-
-  // Calculate current day of challenge
   useEffect(() => {
+    const START_DATE = new Date("2026-02-19");
     const today = new Date();
     const diffDays = Math.floor(
       (today.getTime() - START_DATE.getTime()) / (1000 * 60 * 60 * 24),
@@ -37,7 +54,6 @@ export default function AsmaAlHusna() {
     setSelectedDay(currentDay);
   }, []);
 
-  // Fetch asma names on mount
   useEffect(() => {
     if (!user) {
       navigate("/login");
@@ -61,7 +77,6 @@ export default function AsmaAlHusna() {
     fetchAsma();
   }, [user, navigate]);
 
-  // Get 3 names for selected day
   const namesForDay = names.slice(
     (selectedDay - 1) * 3,
     (selectedDay - 1) * 3 + 3,
@@ -88,54 +103,58 @@ export default function AsmaAlHusna() {
     setIsFlipped(false);
   };
 
-  // Skeleton loader
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-        <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8 text-white">
+      <div className="min-h-screen pb-24 relative" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12 pb-6">
           <div className="h-8 w-40 bg-white/20 rounded animate-pulse mb-2" />
-          <div className="h-4 w-32 bg-white/20 rounded animate-pulse" />
+          <div className="h-4 w-32 bg-white/15 rounded animate-pulse" />
         </div>
-        <div className="px-4 mt-8">
-          <div className="h-12 bg-gray-300 rounded animate-pulse mb-6" />
-          <div className="h-40 bg-gray-300 rounded animate-pulse mb-6" />
+        <div className="relative z-10 px-4">
+          <div className="flex gap-2 overflow-hidden mb-6">
+            {[1,2,3,4,5].map(i => (
+              <div key={i} className="h-9 w-16 bg-white/15 rounded-full animate-pulse flex-shrink-0" />
+            ))}
+          </div>
+          <div className="h-64 w-full rounded-3xl bg-white/10 animate-pulse mb-6" />
+          <div className="h-32 w-full rounded-2xl bg-white/10 animate-pulse" />
         </div>
+        <BottomNav />
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
+    <div className="min-h-screen pb-24 relative" style={BG_STYLE}>
+      <div className="absolute inset-0 bg-black/50" />
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4  pb-8 text-white  top-0 z-10">
-        <div className="flex items-center gap-2 mb-4 pt-6">
-          <button
-            onClick={() => navigate(-1)}
-            className="flex gap-2  hover:opacity-80 active:scale-95"
-          >
-            <ChevronLeft size={24} />
-          </button>
-          <h1 className="text-xl font-bold flex items-center gap-2">
-            Алланың 99 көркем есімі
-          </h1>
-        </div>
-        <p className="text-indigo-100 mt-2">
-          {selectedDay}-күн / 33 | Есімдер {(selectedDay - 1) * 3 + 1}–
-          {Math.min(selectedDay * 3, 99)}
+      <div className="relative z-10 px-4 pt-12 pb-6">
+        <button
+          onClick={() => navigate(-1)}
+          className="flex items-center gap-1 text-white/70 hover:text-white mb-4 transition-colors"
+        >
+          <ChevronLeft size={22} />
+        </button>
+        <h1 className="text-xl font-bold text-white">Алланың 99 көркем есімі</h1>
+        <p className="text-white/50 text-sm mt-1">
+          {selectedDay}-күн / 33 | Есімдер {(selectedDay - 1) * 3 + 1}–{Math.min(selectedDay * 3, 99)}
         </p>
       </div>
 
       {/* Day Selector */}
-      <div className="px-4 mt-6 flex gap-2 overflow-x-auto pb-4 scroll-smooth">
+      <div className="relative z-10 px-4 flex gap-2 overflow-x-auto pb-4 scroll-smooth">
         {Array.from({ length: 33 }, (_, i) => i + 1).map((day) => (
           <button
             key={day}
             onClick={() => handleDaySelect(day)}
-            className={`px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all ${
+            className="px-4 py-2 rounded-full font-semibold text-sm whitespace-nowrap transition-all active:scale-95"
+            style={
               selectedDay === day
-                ? "bg-indigo-600 text-white scale-110"
-                : "bg-white text-indigo-900 border-2 border-indigo-300"
-            } active:scale-95`}
+                ? { background: "rgba(255,255,255,0.25)", border: "1px solid rgba(255,255,255,0.4)", color: "white" }
+                : { background: "rgba(255,255,255,0.08)", border: "1px solid rgba(255,255,255,0.15)", color: "rgba(255,255,255,0.6)" }
+            }
           >
             {day}-күн
           </button>
@@ -144,13 +163,11 @@ export default function AsmaAlHusna() {
 
       {/* Flashcard */}
       {currentName ? (
-        <div className="px-4 mt-8 flex flex-col items-center">
+        <div className="relative z-10 px-4 mt-6 flex flex-col items-center">
           <div
             onClick={() => setIsFlipped(!isFlipped)}
             className="w-full max-w-sm h-64 cursor-pointer"
-            style={{
-              perspective: "1000px",
-            }}
+            style={{ perspective: "1000px" }}
           >
             <div
               className="relative w-full h-full transition-transform duration-500"
@@ -161,45 +178,49 @@ export default function AsmaAlHusna() {
             >
               {/* Front */}
               <div
-                className="absolute w-full h-full bg-white rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center border-4 border-indigo-300"
+                className="absolute w-full h-full rounded-3xl p-8 flex flex-col items-center justify-center"
                 style={{
+                  ...glass,
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                 }}
               >
-                <p className="text-sm text-indigo-600 font-semibold mb-4">
+                <p className="text-sm text-white/60 font-semibold mb-4">
                   {currentName.number}-есім / 99
                 </p>
                 <p
-                  className="text-5xl font-bold text-indigo-900 text-center mb-4"
+                  className="text-5xl font-bold text-white text-center mb-4"
                   style={{ fontFamily: "serif" }}
                 >
                   {currentName.name}
                 </p>
-                <p className="text-sm text-gray-500 mt-4">
+                <p className="text-sm text-white/40 mt-4">
                   (мағынасын көру үшін басыңыз)
                 </p>
               </div>
 
               {/* Back */}
               <div
-                className="absolute w-full h-full bg-gradient-to-br from-indigo-500 to-indigo-600 rounded-3xl shadow-2xl p-8 flex flex-col items-center justify-center text-white border-4 border-indigo-300"
+                className="absolute w-full h-full rounded-3xl p-8 flex flex-col items-center justify-center"
                 style={{
+                  background: "rgba(99,60,200,0.45)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(139,92,246,0.4)",
                   backfaceVisibility: "hidden",
                   WebkitBackfaceVisibility: "hidden",
                   transform: "rotateY(180deg)",
                 }}
               >
                 <p
-                  className="text-4xl font-bold text-center mb-4"
+                  className="text-4xl font-bold text-white text-center mb-4"
                   style={{ fontFamily: "serif" }}
                 >
                   {currentName.name}
                 </p>
-                <p className="text-xl font-semibold mb-2 text-center">
+                <p className="text-xl font-semibold mb-2 text-center text-white">
                   {ASMA_KAZAKH_TRANSLIT[currentName.number]}
                 </p>
-                <p className="text-lg text-center text-indigo-100">
+                <p className="text-lg text-center text-white/70">
                   {ASMA_KAZAKH[currentName.number]}
                 </p>
               </div>
@@ -211,52 +232,41 @@ export default function AsmaAlHusna() {
             <button
               onClick={handlePrevCard}
               disabled={cardIndex === 0}
-              className={`p-3 rounded-full transition-all ${
-                cardIndex === 0
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
-              }`}
+              className="p-3 rounded-full transition-all active:scale-95 disabled:opacity-30"
+              style={glassDark}
             >
-              <ChevronLeft size={24} />
+              <ChevronLeft size={24} className="text-white" />
             </button>
-            <span className="text-lg font-bold text-indigo-900">
-              {cardIndex + 1}/3
-            </span>
+            <span className="text-lg font-bold text-white">{cardIndex + 1}/3</span>
             <button
               onClick={handleNextCard}
               disabled={cardIndex === 2}
-              className={`p-3 rounded-full transition-all ${
-                cardIndex === 2
-                  ? "bg-gray-300 text-gray-500 cursor-not-allowed"
-                  : "bg-indigo-600 text-white hover:bg-indigo-700 active:scale-95"
-              }`}
+              className="p-3 rounded-full transition-all active:scale-95 disabled:opacity-30"
+              style={glassDark}
             >
-              <ChevronRight size={24} />
+              <ChevronRight size={24} className="text-white" />
             </button>
           </div>
 
-          <div className="mt-8 bg-white rounded-2xl p-6 w-full max-w-sm border-l-4 border-indigo-600 shadow-lg">
-            <h3 className="font-bold text-indigo-900 mb-2">
-              {selectedDay}-күн
-            </h3>
-
-            <p className="text-gray-700 text-sm">
-              Бүгін жүрегіңізге тоқитын көркем есімдер:
-            </p>
-
+          {/* Day summary */}
+          <div className="mt-6 w-full max-w-sm rounded-2xl p-5" style={{ ...glassDark, borderLeft: "3px solid rgba(139,92,246,0.6)" }}>
+            <h3 className="font-bold text-white mb-2">{selectedDay}-күн</h3>
+            <p className="text-white/60 text-sm">Бүгін жүрегіңізге тоқитын көркем есімдер:</p>
             <ul className="mt-3 space-y-1">
               {namesForDay.map((name) => (
-                <li key={name.number} className="text-sm text-gray-600">
+                <li key={name.number} className="text-sm text-white/70">
                   {name.number}. {ASMA_KAZAKH_TRANSLIT[name.number]} —{" "}
-                  {ASMA_KAZAKH[name.number]}
+                  <span className="text-white/90">{ASMA_KAZAKH[name.number]}</span>
                 </li>
               ))}
             </ul>
           </div>
         </div>
       ) : (
-        <div className="px-4 mt-8 bg-white rounded-2xl p-6 text-center text-gray-600">
-          Есімдер жүктелмеді
+        <div className="relative z-10 px-4 mt-8">
+          <div className="rounded-2xl p-6 text-center" style={glassDark}>
+            <p className="text-white/60">Есімдер жүктелмеді</p>
+          </div>
         </div>
       )}
 

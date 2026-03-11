@@ -10,6 +10,25 @@ import {
   type QuizResult,
 } from "../services/quizService";
 
+const BG_STYLE = {
+  backgroundImage: "url('/masjid1.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
+
+const glass = {
+  background: "rgba(255,255,255,0.1)",
+  backdropFilter: "blur(16px)",
+  border: "1px solid rgba(255,255,255,0.18)",
+};
+
+const glassDark = {
+  background: "rgba(0,0,0,0.3)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.1)",
+};
+
 export default function Quiz() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
@@ -17,9 +36,7 @@ export default function Quiz() {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<
-    Record<string, string>
-  >({});
+  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
 
@@ -36,7 +53,6 @@ export default function Quiz() {
           setLoading(false);
           return;
         }
-
         const generatedQuestions = generateQuiz(asmaNumbers);
         setQuestions(generatedQuestions);
       } catch (error) {
@@ -53,10 +69,7 @@ export default function Quiz() {
 
   const handleSelectAnswer = (answer: string) => {
     if (!showResults) {
-      setSelectedAnswers({
-        ...selectedAnswers,
-        [currentQuestion.id]: answer,
-      });
+      setSelectedAnswers({ ...selectedAnswers, [currentQuestion.id]: answer });
     }
   };
 
@@ -79,12 +92,7 @@ export default function Quiz() {
     const answers = questions.map((q) => {
       const isCorrect = selectedAnswers[q.id] === q.correctAnswer;
       if (isCorrect) correctCount++;
-      return {
-        questionId: q.id,
-        selected: selectedAnswers[q.id] || "",
-        correct: q.correctAnswer,
-        isCorrect,
-      };
+      return { questionId: q.id, selected: selectedAnswers[q.id] || "", correct: q.correctAnswer, isCorrect };
     });
 
     const percentage = Math.round((correctCount / questions.length) * 100);
@@ -107,74 +115,62 @@ export default function Quiz() {
     setShowResults(true);
   };
 
+  // Back button component
+  const BackButton = () => (
+    <button
+      onClick={() => navigate("/dashboard")}
+      className="flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors"
+    >
+      <ChevronLeft size={20} />
+      Артқа
+    </button>
+  );
+
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-        <div className="px-4 pt-6">
-          <div className="h-6 w-20 bg-indigo-200 rounded animate-pulse mb-6" />
-        </div>
-
-        {/* Progress bar skeleton */}
-        <div className="px-4 mb-6">
+      <div className="min-h-screen relative" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12">
+          <div className="h-5 w-16 bg-white/20 rounded animate-pulse mb-6" />
           <div className="flex justify-between mb-2">
-            <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
-            <div className="h-4 w-10 bg-gray-200 rounded animate-pulse" />
+            <div className="h-4 w-24 bg-white/20 rounded animate-pulse" />
+            <div className="h-4 w-10 bg-white/20 rounded animate-pulse" />
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-2">
-            <div className="bg-indigo-300 h-2 rounded-full w-1/4 animate-pulse" />
-          </div>
-        </div>
-
-        {/* Question card skeleton */}
-        <div className="px-4">
-          <div className="bg-white rounded-2xl p-6 shadow-lg">
-            <div className="h-8 w-8 bg-gray-200 rounded animate-pulse mb-4" />
-            <div className="h-6 w-full bg-gray-200 rounded animate-pulse mb-2" />
-            <div className="h-6 w-3/4 bg-gray-200 rounded animate-pulse mb-6" />
-
-            {/* Options skeleton */}
+          <div className="w-full bg-white/20 rounded-full h-2 mb-6 animate-pulse" />
+          <div className="rounded-2xl p-6" style={glass}>
+            <div className="h-8 w-8 bg-white/20 rounded animate-pulse mb-4" />
+            <div className="h-6 w-full bg-white/20 rounded animate-pulse mb-2" />
+            <div className="h-6 w-3/4 bg-white/15 rounded animate-pulse mb-6" />
             <div className="space-y-3 mb-6">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-14 w-full bg-gray-100 rounded-lg animate-pulse" />
+                <div key={i} className="h-14 w-full bg-white/10 rounded-xl animate-pulse" />
               ))}
             </div>
-
-            {/* Buttons skeleton */}
             <div className="flex gap-3">
-              <div className="flex-1 h-12 bg-gray-200 rounded-lg animate-pulse" />
-              <div className="flex-1 h-12 bg-indigo-200 rounded-lg animate-pulse" />
+              <div className="flex-1 h-12 bg-white/10 rounded-xl animate-pulse" />
+              <div className="flex-1 h-12 bg-white/15 rounded-xl animate-pulse" />
             </div>
           </div>
         </div>
-
       </div>
     );
   }
 
   if (questions.length === 0) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-        <div className="px-4 pt-6">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6"
-          >
-            <ChevronLeft size={20} />
-            Артқа
-          </button>
+      <div className="min-h-screen relative" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12">
+          <BackButton />
         </div>
-
-        <div className="px-4 text-center mt-20">
+        <div className="relative z-10 px-4 text-center mt-20">
           <div className="text-6xl mb-4">📖</div>
-          <h2 className="text-2xl font-bold text-gray-900 mb-2">
-            Есімдер әлі жоқ
-          </h2>
-          <p className="text-gray-600 mb-6">
-            Куизге өту үшін алдымен Алланың 99 есімін үйрену қажет
-          </p>
+          <h2 className="text-2xl font-bold text-white mb-2">Есімдер әлі жоқ</h2>
+          <p className="text-white/60 mb-6">Куизге өту үшін алдымен Алланың 99 есімін үйрену қажет</p>
           <button
             onClick={() => navigate("/asma")}
-            className="bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700"
+            className="px-6 py-3 rounded-xl font-semibold text-white transition-all active:scale-95"
+            style={glass}
           >
             Есімдерді үйрену →
           </button>
@@ -185,75 +181,58 @@ export default function Quiz() {
 
   if (showResults) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-        <div className="px-4 pt-6">
-          <button
-            onClick={() => navigate("/dashboard")}
-            className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6"
-          >
-            <ChevronLeft size={20} />
-            Артқа
-          </button>
-        </div>
-
-        <div className="px-4 py-8">
-          <div className="bg-white rounded-3xl p-8 text-center shadow-lg">
-            <div className="text-6xl mb-4">
-              {score === questions.length ? "🎉" : score >= 7 ? "👏" : "💪"}
+      <div className="min-h-screen relative pb-10" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12">
+          <BackButton />
+          <div className="rounded-3xl p-6" style={glass}>
+            <div className="text-center mb-6">
+              <div className="text-6xl mb-3">
+                {score === questions.length ? "🎉" : score >= 7 ? "👏" : "💪"}
+              </div>
+              <h2 className="text-2xl font-bold text-white mb-2">Куиз аяқталды!</h2>
+              <div className="text-5xl font-bold text-white my-3">{score}/{questions.length}</div>
+              <p className="text-white/60 text-lg">{Math.round((score / questions.length) * 100)}%</p>
+              <button
+                onClick={() => navigate("/community", { state: { tab: "quiz" } })}
+                className="mt-4 w-full py-3 rounded-xl font-semibold text-white transition-all active:scale-95"
+                style={{ background: "rgba(99,60,200,0.35)", border: "1px solid rgba(139,92,246,0.5)" }}
+              >
+                🏆 Рейтингті көру
+              </button>
             </div>
-            <h2 className="text-3xl font-bold text-gray-900 mb-2">
-              Куиз аяқталды!
-            </h2>
-            <div className="text-5xl font-bold text-indigo-600 my-4">
-              {score}/{questions.length}
-            </div>
-            <p className="text-gray-600 text-lg mb-8">
-              Нәтиже: {Math.round((score / questions.length) * 100)}%
-            </p>
 
-            <div className="space-y-2 mb-8">
+            <div className="space-y-2 mb-6">
               {questions.map((q, idx) => {
                 const answer = selectedAnswers[q.id];
                 const isCorrect = answer === q.correctAnswer;
                 return (
                   <div
                     key={q.id}
-                    className={`p-3 rounded-lg text-left ${isCorrect ? "bg-green-50" : "bg-red-50"}`}
+                    className="p-3 rounded-xl text-left"
+                    style={isCorrect
+                      ? { background: "rgba(34,197,94,0.2)", border: "1px solid rgba(34,197,94,0.3)" }
+                      : { background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.3)" }
+                    }
                   >
                     <div className="flex items-start gap-3">
-                      {isCorrect ? (
-                        <CheckCircle2
-                          size={20}
-                          className="text-green-600 mt-1"
-                        />
-                      ) : (
-                        <XCircle size={20} className="text-red-600 mt-1" />
-                      )}
+                      {isCorrect
+                        ? <CheckCircle2 size={18} className="text-green-400 mt-0.5 flex-shrink-0" />
+                        : <XCircle size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
+                      }
                       <div className="flex-1 text-sm">
-                        <p className="font-semibold text-gray-900">
-                          {idx + 1}.{" "}
-                          {q.type === "name-to-meaning"
-                            ? q.kazakhName
-                            : q.meaning}
+                        <p className="font-semibold text-white">
+                          {idx + 1}. {q.type === "name-to-meaning" ? q.kazakhName : q.meaning}
                         </p>
-                        <p className="text-gray-600">
+                        <p className="text-white/60">
                           Таңдаған:{" "}
-                          <span
-                            className={
-                              isCorrect
-                                ? "text-green-600 font-semibold"
-                                : "text-red-600"
-                            }
-                          >
+                          <span className={isCorrect ? "text-green-400 font-semibold" : "text-red-400"}>
                             {answer}
                           </span>
                         </p>
                         {!isCorrect && (
-                          <p className="text-gray-600">
-                            Дұрыс жауап:{" "}
-                            <span className="text-green-600 font-semibold">
-                              {q.correctAnswer}
-                            </span>
+                          <p className="text-white/60">
+                            Дұрыс: <span className="text-green-400 font-semibold">{q.correctAnswer}</span>
                           </p>
                         )}
                       </div>
@@ -265,7 +244,8 @@ export default function Quiz() {
 
             <button
               onClick={() => window.location.reload()}
-              className="w-full bg-indigo-600 text-white px-6 py-3 rounded-lg font-semibold hover:bg-indigo-700"
+              className="w-full py-3 rounded-xl font-semibold text-white transition-all active:scale-95"
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
             >
               Қайта бастау
             </button>
@@ -276,70 +256,64 @@ export default function Quiz() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-      <div className="px-4 pt-6">
-        <button
-          onClick={() => navigate("/dashboard")}
-          className="flex items-center gap-2 text-indigo-600 hover:text-indigo-700 mb-6"
-        >
-          <ChevronLeft size={20} />
-          Артқа
-        </button>
-      </div>
+    <div className="min-h-screen relative" style={BG_STYLE}>
+      <div className="absolute inset-0 bg-black/50" />
+      <div className="relative z-10 px-4 pt-12">
+        <BackButton />
 
-      {/* Progress */}
-      <div className="px-4 mb-6">
-        <div className="flex justify-between items-center mb-2">
-          <span className="text-sm font-semibold text-gray-900">
-            Сұрақ {currentQuestionIndex + 1}/{questions.length}
-          </span>
-          <span className="text-sm text-gray-600">
-            {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}%
-          </span>
+        {/* Progress */}
+        <div className="mb-5">
+          <div className="flex justify-between items-center mb-2">
+            <span className="text-sm font-semibold text-white/80">
+              Сұрақ {currentQuestionIndex + 1}/{questions.length}
+            </span>
+            <span className="text-sm text-white/50">
+              {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}%
+            </span>
+          </div>
+          <div className="w-full bg-white/20 rounded-full h-2">
+            <div
+              className="bg-white h-2 rounded-full transition-all"
+              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+            />
+          </div>
         </div>
-        <div className="w-full bg-gray-200 rounded-full h-2">
-          <div
-            className="bg-indigo-600 h-2 rounded-full transition-all"
-            style={{
-              width: `${((currentQuestionIndex + 1) / questions.length) * 100}%`,
-            }}
-          />
-        </div>
-      </div>
 
-      {/* Question Card */}
-      <div className="px-4">
-        <div className="bg-white rounded-2xl p-6 shadow-lg">
-          <div className="text-2xl mb-4">
+        {/* Question Card */}
+        <div className="rounded-2xl p-5" style={glass}>
+          <div className="text-2xl mb-3">
             {currentQuestion.type === "name-to-meaning" ? "📖" : "✨"}
           </div>
-
-          <h3 className="text-xl font-bold text-gray-900 mb-6">
+          <h3 className="text-lg font-bold text-white mb-5">
             {currentQuestion.type === "name-to-meaning"
               ? `"${currentQuestion.kazakhName}" дегеннің мағынасы қандай?`
               : `"${currentQuestion.meaning}" дегеннің есімі қандай?`}
           </h3>
 
           {/* Options */}
-          <div className="space-y-3 mb-6">
+          <div className="space-y-2 mb-5">
             {currentQuestion.options.map((option) => {
               const isSelected = selectedAnswers[currentQuestion.id] === option;
               const isCorrect = option === currentQuestion.correctAnswer;
+
+              let optionStyle: React.CSSProperties;
+              if (isSelected && isCorrect) {
+                optionStyle = { background: "rgba(34,197,94,0.35)", border: "1px solid rgba(34,197,94,0.6)" };
+              } else if (isSelected && !isCorrect) {
+                optionStyle = { background: "rgba(239,68,68,0.35)", border: "1px solid rgba(239,68,68,0.6)" };
+              } else if (!isSelected && isCorrect && showResults) {
+                optionStyle = { background: "rgba(34,197,94,0.2)", border: "1px solid rgba(34,197,94,0.4)" };
+              } else {
+                optionStyle = glassDark;
+              }
 
               return (
                 <button
                   key={option}
                   onClick={() => handleSelectAnswer(option)}
-                  disabled={showResults}
-                  className={`w-full p-4 rounded-lg text-left font-semibold transition-all ${
-                    isSelected
-                      ? isCorrect
-                        ? "bg-green-500 text-white"
-                        : "bg-red-500 text-white"
-                      : isCorrect && showResults
-                        ? "bg-green-100 text-green-900 border-2 border-green-500"
-                        : "bg-gray-100 text-gray-900 hover:bg-gray-200"
-                  }`}
+                  disabled={!!selectedAnswers[currentQuestion.id]}
+                  className="w-full p-3.5 rounded-xl text-left font-medium text-white transition-all active:scale-98 disabled:cursor-default"
+                  style={optionStyle}
                 >
                   {option}
                 </button>
@@ -352,23 +326,22 @@ export default function Quiz() {
             <button
               onClick={handlePreviousQuestion}
               disabled={currentQuestionIndex === 0}
-              className="flex-1 px-4 py-3 rounded-lg font-semibold bg-gray-200 text-gray-900 hover:bg-gray-300 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 rounded-xl font-semibold text-white/70 disabled:opacity-30 transition-all"
+              style={glassDark}
             >
               ← Артқа
             </button>
             <button
               onClick={handleNextQuestion}
               disabled={!selectedAnswers[currentQuestion.id]}
-              className="flex-1 px-4 py-3 rounded-lg font-semibold bg-indigo-600 text-white hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 py-3 rounded-xl font-semibold text-white disabled:opacity-30 transition-all"
+              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
             >
-              {currentQuestionIndex === questions.length - 1
-                ? "Бітір"
-                : "Алға →"}
+              {currentQuestionIndex === questions.length - 1 ? "Бітір" : "Алға →"}
             </button>
           </div>
         </div>
       </div>
-
     </div>
   );
 }

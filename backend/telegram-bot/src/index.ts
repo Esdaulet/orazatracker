@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import TelegramBot from "node-telegram-bot-api";
-import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage, buildRamadanLast10Message, buildNewFeaturesMessage } from "./scheduler";
+import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage, buildRamadanLast10Message, buildNewFeaturesMessage, buildNewDesignMessage } from "./scheduler";
 import {
   getAsmaNumbersForToday,
   ASMA_KAZAKH_TRANSLIT,
@@ -101,6 +101,14 @@ bot.onText(/\/newfeat/, async (msg) => {
   const message = buildNewFeaturesMessage();
   await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
   bot.sendMessage(msg.chat.id, "✅ Жаңалықтар анонсы топқа жіберілді!");
+});
+
+// /newdesign — announce new design to the group
+bot.onText(/\/newdesign/, async (msg) => {
+  const groupId = process.env.GROUP_CHAT_ID!;
+  const message = buildNewDesignMessage();
+  await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
+  bot.sendMessage(msg.chat.id, "✅ Жаңа дизайн анонсы топқа жіберілді!");
 });
 
 // /ramadan10 — send last 10 days of Ramadan special message to group

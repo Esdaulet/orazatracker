@@ -16,7 +16,6 @@ import referralAnimation from "../assets/referal.json";
 import announcementAnimation from "../assets/annons.json";
 import type { Category } from "../types";
 
-// Announcements carousel data
 interface Announcement {
   id: string;
   emoji: string;
@@ -87,8 +86,7 @@ const getAnnouncements = (): Announcement[] => [
   },
 ];
 
-// Ramadan 2026: Feb 18 – Mar 19
-const RAMADAN_START = new Date(2026, 1, 19); // Feb 19, 2026
+const RAMADAN_START = new Date(2026, 1, 19);
 
 function getRamadanDay(): number {
   const now = new Date();
@@ -98,6 +96,25 @@ function getRamadanDay(): number {
   if (diff < 0 || diff >= 30) return 0;
   return diff + 1;
 }
+
+const BG_STYLE = {
+  backgroundImage: "url('/masjid1.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
+
+const glass = {
+  background: "rgba(255,255,255,0.1)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.18)",
+};
+
+const glassDark = {
+  background: "rgba(0,0,0,0.25)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.12)",
+};
 
 export default function Dashboard() {
   const user = useAuthStore((state) => state.user);
@@ -117,7 +134,6 @@ export default function Dashboard() {
   const currentMember = newMembers[currentMemberIndex];
   const announcements = getAnnouncements();
 
-  // Auto-rotate carousel every 5 seconds
   useEffect(() => {
     const interval = setInterval(() => {
       setCarouselIndex((prev) => (prev + 1) % announcements.length);
@@ -147,7 +163,6 @@ export default function Dashboard() {
       return;
     }
     loadData();
-    // Load new members
     getUnseenNewMembers()
       .then(setNewMembers)
       .catch(() => {});
@@ -176,19 +191,12 @@ export default function Dashboard() {
   const handleToggleCheckbox = useCallback(
     async (e: React.MouseEvent, categoryId: string, target: number) => {
       e.stopPropagation();
-
       const rawCount = progress[categoryId] || 0;
-      // For FirstThreeNames: count how many names are fully learned (>= 33)
       const count = Array.isArray(rawCount)
         ? rawCount.filter((c) => c >= 33).length
         : rawCount;
       const newCount = count >= target ? 0 : target;
-
-      setProgress({
-        ...progress,
-        [categoryId]: newCount,
-      });
-
+      setProgress({ ...progress, [categoryId]: newCount });
       try {
         await saveProgress(today, categoryId, newCount);
       } catch (err) {
@@ -200,30 +208,20 @@ export default function Dashboard() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-        {/* Header skeleton */}
-        <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8">
-          <div className="h-4 w-24 bg-indigo-500 rounded mb-3 animate-pulse" />
-          <div className="h-7 w-56 bg-indigo-500 rounded animate-pulse" />
-          <div className="mt-4 bg-white bg-opacity-20 rounded-xl p-3">
-            <div className="flex justify-between mb-2">
-              <div className="h-4 w-20 bg-indigo-400 rounded animate-pulse" />
-              <div className="h-4 w-10 bg-indigo-400 rounded animate-pulse" />
-            </div>
-            <div className="w-full bg-indigo-600 bg-opacity-30 rounded-full h-2 animate-pulse" />
+      <div className="min-h-screen pb-24 relative" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12 pb-4">
+          <div className="h-4 w-24 bg-white/20 rounded mb-2 animate-pulse" />
+          <div className="h-7 w-56 bg-white/20 rounded animate-pulse" />
+          <div className="mt-3 rounded-xl p-3" style={glass}>
+            <div className="h-3 w-full bg-white/20 rounded animate-pulse" />
           </div>
         </div>
-        {/* Cards skeleton */}
-        <div className="px-4 mt-3 flex flex-col gap-2">
-          {[1, 2, 3, 4, 5].map((i) => (
-            <div key={i} className="bg-white rounded-xl p-3 shadow-sm">
-              <div className="flex items-center justify-between mb-3">
-                <div className="h-5 w-32 bg-gray-200 rounded animate-pulse" />
-                <div className="h-6 w-6 bg-gray-200 rounded animate-pulse" />
-              </div>
-              <div className="h-3 w-20 bg-gray-200 rounded mb-2 animate-pulse" />
-              <div className="w-full bg-gray-200 rounded-full h-2 animate-pulse" />
-              <div className="h-3 w-40 bg-gray-100 rounded mt-2 animate-pulse" />
+        <div className="relative z-10 px-4 flex flex-col gap-2">
+          {[1, 2, 3, 4].map((i) => (
+            <div key={i} className="rounded-xl p-4" style={glass}>
+              <div className="h-5 w-32 bg-white/20 rounded animate-pulse mb-3" />
+              <div className="h-2 w-full bg-white/20 rounded animate-pulse" />
             </div>
           ))}
         </div>
@@ -233,8 +231,10 @@ export default function Dashboard() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-      {/* New member toast */}
+    <div className="min-h-screen pb-24 relative" style={BG_STYLE}>
+      <div className="absolute inset-0 bg-black/50" />
+
+      {/* Toast */}
       {currentMember && (
         <Toast
           message="Тағы бір керемет адам бізбен бірге! 🎉"
@@ -243,29 +243,29 @@ export default function Dashboard() {
         />
       )}
 
-      {/* Header - Compact */}
-      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-6 pb-4">
-        <div className="flex items-center justify-between">
+      {/* Header */}
+      <div className="relative z-10 px-4 pt-10 pb-4">
+        <div className="flex items-center justify-between mb-3">
           <div>
-            <h1 className="text-white text-lg font-bold">
+            <h1 className="text-white text-xl font-bold">
               Қош келдіңіз, {user?.displayName}!
             </h1>
-            <div className="text-indigo-200 text-xs flex items-center gap-1 mt-0.5">
-              <span>Бүгін Рамазанның {ramadanDay}-күні</span>
-              <Star size={12} fill="currentColor" />
+            <div className="text-white/60 text-xs flex items-center gap-1 mt-0.5">
+              <span>Рамазанның {ramadanDay}-күні</span>
+              <Star size={11} fill="currentColor" />
             </div>
           </div>
         </div>
 
         {categories.length > 0 && (
-          <div className="mt-2 bg-white bg-opacity-15 rounded-lg p-2">
-            <div className="flex justify-between text-white text-xs mb-1">
-              <span>Орындалған</span>
+          <div className="rounded-xl p-3" style={glass}>
+            <div className="flex justify-between text-white text-xs mb-2">
+              <span className="text-white/70">Орындалған</span>
               <span className="font-bold">
                 {completedCount}/{categories.length}
               </span>
             </div>
-            <div className="w-full bg-indigo-600 bg-opacity-30 rounded-full h-1.5">
+            <div className="w-full bg-white/20 rounded-full h-1.5">
               <div
                 className="bg-white h-1.5 rounded-full transition-all duration-500"
                 style={{
@@ -277,112 +277,89 @@ export default function Dashboard() {
         )}
       </div>
 
-      {/* Announcements Carousel */}
-      <div className="px-3 sm:px-4 mt-3 sm:mt-4">
-        <div className="relative">
-          {/* Carousel Card */}
-          <div
-            className="overflow-hidden rounded-2xl sm:rounded-3xl"
-            onTouchStart={(e) => {
-              touchStartX.current = e.touches[0].clientX;
-            }}
-            onTouchEnd={(e) => {
-              const touchEndX = e.changedTouches[0].clientX;
-              const diff = touchStartX.current - touchEndX;
-              if (Math.abs(diff) > 50) {
-                if (diff > 0) {
-                  // Свайп влево → следующий
-                  setCarouselIndex((prev) => (prev + 1) % announcements.length);
-                } else {
-                  // Свайп вправо → предыдущий
-                  setCarouselIndex((prev) =>
-                    prev === 0 ? announcements.length - 1 : prev - 1,
-                  );
-                }
-              }
-            }}
-          >
-            <div className="relative">
-              {announcements.map((announcement, idx) => (
-                <div
-                  key={announcement.id}
-                  className={`transition-all duration-500 ${
-                    idx === carouselIndex ? "block" : "hidden"
-                  }`}
-                >
-                  <div
-                    className={`bg-gradient-to-br ${announcement.gradient} p-4 sm:p-6 text-white min-h-48 sm:min-h-60 flex flex-col justify-between rounded-2xl sm:rounded-3xl overflow-hidden relative`}
-                  >
-                    {/* Lottie Animation Background */}
-                    <div className="absolute top-0 right-0 w-24 h-24 sm:w-40 sm:h-40 ">
-                      <Lottie
-                        animationData={announcement.animationData}
-                        loop
-                        autoplay
-                        style={{ width: "100%", height: "100%" }}
-                      />
-                    </div>
-
-                    <div className="relative z-10">
-                      <div className="text-3xl sm:text-5xl mb-2 sm:mb-3">
-                        {announcement.emoji}
-                      </div>
-                      <h3 className="text-lg sm:text-2xl font-bold mb-1 sm:mb-2">
-                        {announcement.title}
-                      </h3>
-                      <p className="text-white text-opacity-90 text-sm sm:text-base">
-                        {announcement.desc}
-                      </p>
-                    </div>
-                    <button
-                      onClick={() => {
-                        navigate(announcement.route);
-                        localStorage.setItem(announcement.storageKey, "true");
-                      }}
-                      className="bg-white text-gray-900 font-bold py-1.5 sm:py-2 px-3 sm:px-4 rounded-lg sm:rounded-xl text-sm sm:text-base hover:bg-opacity-90 transition-all active:scale-95 self-start mt-3 sm:mt-4 relative z-10"
-                    >
-                      {announcement.cta}
-                    </button>
-                  </div>
-                </div>
-              ))}
-
-              {/* Indicators */}
-              <div className="flex justify-center gap-1.5 sm:gap-2 mt-3 sm:mt-4">
-                {announcements.map((_, idx) => (
-                  <button
-                    key={idx}
-                    onClick={() => setCarouselIndex(idx)}
-                    className={`h-1.5 sm:h-2 rounded-full transition-all ${
-                      idx === carouselIndex
-                        ? "bg-gray-800 w-6 sm:w-8"
-                        : "bg-gray-300 w-1.5 sm:w-2 hover:bg-gray-400"
-                    }`}
+      {/* Carousel */}
+      <div className="relative z-10 px-3 mb-3">
+        <div
+          className="overflow-hidden rounded-2xl"
+          onTouchStart={(e) => {
+            touchStartX.current = e.touches[0].clientX;
+          }}
+          onTouchEnd={(e) => {
+            const diff = touchStartX.current - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 50) {
+              setCarouselIndex((prev) =>
+                diff > 0
+                  ? (prev + 1) % announcements.length
+                  : prev === 0
+                    ? announcements.length - 1
+                    : prev - 1,
+              );
+            }
+          }}
+        >
+          {announcements.map((ann, idx) => (
+            <div
+              key={ann.id}
+              className={idx === carouselIndex ? "block" : "hidden"}
+            >
+              <div
+                className="p-4 text-white min-h-44 flex flex-col justify-between rounded-2xl relative overflow-hidden"
+                style={{
+                  background: "rgba(255,255,255,0.1)",
+                  backdropFilter: "blur(16px)",
+                  border: "1px solid rgba(255,255,255,0.2)",
+                }}
+              >
+                <div className="absolute top-0 right-0 w-24 h-24 opacity-100">
+                  <Lottie
+                    animationData={ann.animationData}
+                    loop
+                    autoplay
+                    style={{ width: "100%", height: "100%" }}
                   />
-                ))}
+                </div>
+                <div className="relative z-10">
+                  <div className="text-3xl mb-2">{ann.emoji}</div>
+                  <h3 className="text-lg font-bold mb-1">{ann.title}</h3>
+                  <p className="text-white/70 text-sm">{ann.desc}</p>
+                </div>
+                <button
+                  onClick={() => {
+                    navigate(ann.route);
+                    localStorage.setItem(ann.storageKey, "true");
+                  }}
+                  className="bg-white/20 text-white font-bold py-1.5 px-4 rounded-lg text-sm hover:bg-white/30 transition-all active:scale-95 self-start mt-3 relative z-10 border border-white/30"
+                >
+                  {ann.cta}
+                </button>
               </div>
             </div>
-          </div>
+          ))}
+        </div>
+        <div className="flex justify-center gap-1.5 mt-2">
+          {announcements.map((_, idx) => (
+            <button
+              key={idx}
+              onClick={() => setCarouselIndex(idx)}
+              className={`h-1.5 rounded-full transition-all ${idx === carouselIndex ? "bg-white w-6" : "bg-white/40 w-1.5"}`}
+            />
+          ))}
         </div>
       </div>
 
-      {/* Categories Grid */}
-      <div className="px-4 mt-3 flex flex-col gap-2">
+      {/* Categories */}
+      <div className="relative z-10 px-4 flex flex-col gap-2">
         {categories.length === 0 ? (
-          <div className="bg-white rounded-2xl p-8 text-center mt-4 shadow-sm">
-            <div className="flex justify-center mb-3">
-              <Square size={48} className="text-gray-300" />
-            </div>
-            <p className="text-gray-700 font-medium">Категория жоқ</p>
-            <p className="text-gray-400 text-sm mt-1">
+          <div className="rounded-2xl p-8 text-center" style={glass}>
+            <Square size={40} className="text-white/30 mx-auto mb-3" />
+            <p className="text-white font-medium">Категория жоқ</p>
+            <p className="text-white/50 text-sm mt-1">
               Админ әлі категория құрмағы
             </p>
           </div>
         ) : (
           categories.map((category) => {
             const rawCount = progress[category.id] || 0;
-            // Handle both number (traditional categories) and array (FirstThreeNames)
-            // For FirstThreeNames: count how many names are fully learned (>= 33)
             const count = Array.isArray(rawCount)
               ? rawCount.filter((c) => c >= 33).length
               : rawCount;
@@ -392,9 +369,16 @@ export default function Dashboard() {
             return (
               <div
                 key={category.id}
-                className={`rounded-xl p-3 transition-all ${
-                  isDone ? "bg-white border border-green-500" : "bg-white"
-                }`}
+                className="rounded-xl p-3 transition-all"
+                style={
+                  isDone
+                    ? {
+                        background: "rgba(34,197,94,0.15)",
+                        backdropFilter: "blur(12px)",
+                        border: "1px solid rgba(34,197,94,0.35)",
+                      }
+                    : glassDark
+                }
               >
                 <div className="flex items-center justify-between mb-2">
                   <button
@@ -405,9 +389,9 @@ export default function Dashboard() {
                           : `/counter/${category.id}`;
                       navigate(path);
                     }}
-                    className="flex-1 text-left hover:opacity-80 transition-opacity"
+                    className="flex-1 text-left"
                   >
-                    <h3 className="font-bold text-gray-900">{category.name}</h3>
+                    <h3 className="font-bold text-white">{category.name}</h3>
                   </button>
                   <button
                     onClick={(e) =>
@@ -416,9 +400,9 @@ export default function Dashboard() {
                     className="ml-2 transition-transform active:scale-75"
                   >
                     {isDone ? (
-                      <CheckCircle2 size={24} className="text-green-500" />
+                      <CheckCircle2 size={24} className="text-green-400" />
                     ) : (
-                      <Square size={24} className="text-gray-300" />
+                      <Square size={24} className="text-white/40" />
                     )}
                   </button>
                 </div>
@@ -431,30 +415,29 @@ export default function Dashboard() {
                         : `/counter/${category.id}`;
                     navigate(path);
                   }}
-                  className="w-full text-left hover:opacity-80 transition-opacity"
+                  className="w-full text-left"
                 >
-                  <div className="mb-2">
+                  <div className="mb-1.5">
                     <div className="flex justify-between text-xs mb-1">
                       <span
-                        className={`font-semibold ${isDone ? "text-green-600" : "text-indigo-600"}`}
+                        className={`font-semibold ${isDone ? "text-green-400" : "text-white/70"}`}
                       >
                         {count} / {category.target}
                       </span>
-                      <span className="text-gray-500">{Math.round(pct)}%</span>
+                      <span className="text-white/50">{Math.round(pct)}%</span>
                     </div>
-                    <div className="w-full bg-gray-200 rounded-full h-2">
+                    <div className="w-full bg-white/20 rounded-full h-1.5">
                       <div
-                        className={`h-2 rounded-full transition-all ${isDone ? "bg-green-500" : "bg-indigo-500"}`}
+                        className={`h-1.5 rounded-full transition-all ${isDone ? "bg-green-400" : "bg-white"}`}
                         style={{ width: `${pct}%` }}
                       />
                     </div>
                   </div>
-
                   <div className="flex items-center justify-between">
-                    <p className="text-gray-600 text-xs line-clamp-1">
+                    <p className="text-white text-xs line-clamp-1">
                       {category.meaning || ""}
                     </p>
-                    <span className="text-indigo-600 text-lg">→</span>
+                    <span className="text-white/60 text-base">→</span>
                   </div>
                 </button>
               </div>

@@ -255,6 +255,16 @@ export function buildNewFeaturesMessage(): string {
   );
 }
 
+export function buildNewDesignMessage(): string {
+  const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
+  return (
+    `🕌✨ *Oraza App жаңа дизайнда!*\n\n` +
+    `Кіріп бағасын беріп көріңіз 👇\n\n` +
+    `${APP_URL}\n\n` +
+    `Ұнаса реакция қалдыруды ұмытпаңыз! 🤲`
+  );
+}
+
 export function buildRamadanLast10Message(): string {
   const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
   return (

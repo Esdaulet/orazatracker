@@ -6,6 +6,13 @@ import { getProgress, saveProgress } from "../services/progressService";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import type { Category } from "../types";
 
+const BG_STYLE = {
+  backgroundImage: "url('/2.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
+
 export default function CategoryCounter() {
   const { categoryId } = useParams<{ categoryId: string }>();
   const navigate = useNavigate();
@@ -77,35 +84,16 @@ export default function CategoryCounter() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col pb-8">
-        {/* Header Skeleton */}
-        <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-4 pb-8">
-          <div className="mb-4 w-8 h-8 bg-indigo-600 rounded animate-pulse" />
-          <div className="flex justify-between items-center">
-            <div className="h-8 w-48 bg-indigo-600 rounded animate-pulse" />
-            <div className="h-8 w-12 bg-indigo-600 rounded animate-pulse" />
-          </div>
+      <div className="min-h-screen flex flex-col relative" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12 pb-6">
+          <div className="w-8 h-8 bg-white/20 rounded-full animate-pulse mb-6" />
+          <div className="h-7 w-40 bg-white/20 rounded animate-pulse" />
         </div>
-
-        {/* Counter Skeleton */}
-        <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-          {/* Big Counter */}
-          <div className="w-56 h-56 rounded-3xl bg-gray-300 shadow-2xl flex items-center justify-center mb-8 animate-pulse" />
-
-          {/* Progress Bar */}
-          <div className="w-full max-w-sm mb-8">
-            <div className="flex justify-between text-sm mb-2">
-              <div className="h-4 w-20 bg-gray-300 rounded animate-pulse" />
-              <div className="h-4 w-12 bg-gray-300 rounded animate-pulse" />
-            </div>
-            <div className="w-full bg-gray-300 rounded-full h-3 animate-pulse" />
-          </div>
-
-          {/* Info Box */}
-          <div className="bg-white rounded-2xl p-6 shadow-sm max-w-sm w-full">
-            <div className="h-4 w-full bg-gray-300 rounded mb-2 animate-pulse" />
-            <div className="h-4 w-5/6 bg-gray-300 rounded animate-pulse" />
-          </div>
+        <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 gap-8">
+          <div className="w-48 h-48 rounded-3xl bg-white/10 backdrop-blur-sm animate-pulse" />
+          <div className="w-full max-w-sm h-3 bg-white/20 rounded-full animate-pulse" />
+          <div className="w-full max-w-sm h-20 bg-white/10 backdrop-blur-sm rounded-2xl animate-pulse" />
         </div>
       </div>
     );
@@ -119,71 +107,95 @@ export default function CategoryCounter() {
     );
   }
 
+  const progress = Math.min((count / category.target) * 100, 100);
+
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex flex-col pb-8">
+    <div className="min-h-screen flex flex-col relative" style={BG_STYLE}>
+      {/* Overlay */}
+      <div className="absolute inset-0 bg-black/50" />
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-4 pb-8 text-white">
+      <div className="relative z-10 px-4 pt-12 pb-6">
         <button
           onClick={() => navigate("/dashboard")}
-          className="mb-4 p-1 hover:bg-indigo-600 rounded transition"
+          className="mb-6 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
         >
-          <ArrowLeft size={24} />
+          <ArrowLeft size={20} />
         </button>
-        <div className="flex justify-between items-center">
-          <h1 className="text-2xl font-bold">{category.name}</h1>
-          <p className="text-indigo-200 text-lg font-semibold">
-            {category.target}
-          </p>
+        <div className="flex justify-between items-end">
+          <h1 className="text-3xl font-bold text-white">{category.name}</h1>
+          <span className="text-white/70 text-lg font-medium">
+            / {category.target}
+          </span>
         </div>
       </div>
 
       {/* Counter Section */}
-      <div className="flex-1 flex flex-col items-center justify-center px-4 py-8">
-        {/* Big Counter */}
+      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8 gap-8">
+        {/* Big Counter — glass card */}
         <div
           onClick={handleIncrement}
-          className="w-56 h-56 rounded-3xl bg-gradient-to-br from-white to-gray-50 shadow-2xl flex items-center justify-center cursor-pointer hover:shadow-xl transition-all mb-8 active:scale-95"
+          className="w-48 h-48 rounded-3xl flex items-center justify-center cursor-pointer active:scale-95 transition-all shadow-2xl"
+          style={{
+            background: "rgba(255,255,255,0.15)",
+            backdropFilter: "blur(6px)",
+            border: "1px solid rgba(255,255,255,0.25)",
+          }}
         >
           <div className="text-center">
-            <p className="text-gray-400 text-sm mb-2">Есеп</p>
-            <p className="text-7xl font-bold text-indigo-600">{count}</p>
+            <p className="text-white/60 text-sm mb-2 tracking-widest uppercase">
+              Есеп
+            </p>
+            <p
+              className={`text-6xl font-bold ${isDone ? "text-green-400" : "text-white"}`}
+            >
+              {count}
+            </p>
           </div>
         </div>
 
         {/* Progress Bar */}
-        <div className="w-full max-w-sm mb-8">
-          <div className="flex justify-between text-sm mb-2">
-            <span className="font-semibold text-gray-700">
+        <div className="w-full max-w-xs">
+          <div className="flex justify-between text-sm mb-2 text-white/80">
+            <span>
               {count} / {category.target}
             </span>
-            <span className="text-gray-500">
-              {Math.round((count / category.target) * 100)}%
-            </span>
+            <span>{Math.round(progress)}%</span>
           </div>
-          <div className="w-full bg-gray-200 rounded-full h-3">
+          <div className="w-full bg-white/20 rounded-full h-2.5">
             <div
-              className={`h-3 rounded-full transition-all duration-300 ${isDone ? "bg-green-500" : "bg-indigo-600"}`}
-              style={{
-                width: `${Math.min((count / category.target) * 100, 100)}%`,
-              }}
+              className={`h-2.5 rounded-full transition-all duration-300 ${isDone ? "bg-green-400" : "bg-white"}`}
+              style={{ width: `${progress}%` }}
             />
           </div>
         </div>
 
         {/* Completion Status */}
         {isDone && (
-          <div className="text-center mb-8 flex items-center justify-center gap-2">
-            <CheckCircle size={24} className="text-green-500" />
-            <p className="text-green-600 font-bold text-lg">
-              Тапсырма орындалды!
-            </p>
+          <div
+            className="flex items-center gap-2 px-5 py-3 rounded-full"
+            style={{
+              background: "rgba(34,197,94,0.2)",
+              backdropFilter: "blur(8px)",
+              border: "1px solid rgba(34,197,94,0.4)",
+            }}
+          >
+            <CheckCircle size={20} className="text-green-400" />
+            <p className="text-green-300 font-semibold">Тапсырма орындалды!</p>
           </div>
         )}
 
-        {/* Meaning/Info */}
+        {/* Meaning — glass card */}
         {category.meaning && (
-          <div className="bg-white rounded-2xl p-6 shadow-sm max-w-sm">
-            <p className="text-gray-600 text-sm leading-relaxed text-center">
+          <div
+            className="w-full max-w-xs rounded-2xl px-6 py-5"
+            style={{
+              background: "rgba(255,255,255,0.12)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.2)",
+            }}
+          >
+            <p className="text-white/90 text-sm leading-relaxed text-center">
               {category.meaning}
             </p>
           </div>

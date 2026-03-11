@@ -17,7 +17,14 @@ export default function BottomNav() {
   ];
 
   return (
-    <nav className="fixed bottom-0 left-0 right-0 bg-white border-t border-gray-200 z-50 safe-area-pb">
+    <nav
+      className="fixed bottom-0 left-0 right-0 z-50 safe-area-pb"
+      style={{
+        background: "rgba(0,0,0,0.95)",
+        backdropFilter: "blur(20px)",
+        borderTop: "1px solid rgba(255,255,255,0.12)",
+      }}
+    >
       <div className="flex">
         {tabs.map((tab) => {
           const isActive = location.pathname === tab.path;
@@ -25,18 +32,18 @@ export default function BottomNav() {
             <button
               key={tab.path}
               onClick={() => navigate(tab.path)}
-              className={`flex-1 flex flex-col items-center py-3 gap-0.5 transition-colors ${
-                isActive ? "text-indigo-600" : "text-gray-400"
+              className={`flex-1 flex flex-col items-center py-3 gap-0.5 transition-colors relative ${
+                isActive ? "text-white" : "text-white/80"
               }`}
             >
-              <tab.icon size={24} />
+              <tab.icon size={22} />
               <span
-                className={`text-xs font-medium ${isActive ? "text-indigo-600" : "text-gray-400"}`}
+                className={`text-xs font-medium ${isActive ? "text-white" : "text-white/40"}`}
               >
                 {tab.label}
               </span>
               {isActive && (
-                <div className="absolute bottom-0 w-12 h-0.5 bg-indigo-600 rounded-t-full" />
+                <div className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 bg-white rounded-b-full" />
               )}
             </button>
           );

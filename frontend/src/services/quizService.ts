@@ -47,7 +47,7 @@ export async function getAvailableAsmaNumbers(): Promise<number[]> {
     const maxAsmaIndex = Math.min((dayNumber + 1) * 3, 99); // 0-99 (99 asma)
     const availableAsmaNumbers = Array.from(
       { length: maxAsmaIndex },
-      (_, i) => i
+      (_, i) => i + 1
     );
 
     return availableAsmaNumbers;
@@ -76,26 +76,30 @@ export function generateQuiz(asmaNumbers: number[]): QuizQuestion[] {
       const kazakhName = ASMA_KAZAKH_TRANSLIT[asmaNum];
       const meaning = ASMA_KAZAKH[asmaNum];
 
+      if (!kazakhName || !meaning) continue;
+
       // Randomly decide question type (50/50)
       const isNameToMeaning = Math.random() > 0.5;
       const questionType: "name-to-meaning" | "meaning-to-name" =
         isNameToMeaning ? "name-to-meaning" : "meaning-to-name";
 
+      const correctAnswer = isNameToMeaning ? meaning : kazakhName;
+
       // Generate wrong options
       const wrongOptions = new Set<string>();
-      while (wrongOptions.size < 3) {
+      let attempts = 0;
+      while (wrongOptions.size < 3 && attempts < 100) {
+        attempts++;
         const wrongNum =
           asmaNumbers[Math.floor(Math.random() * asmaNumbers.length)];
-        if (wrongNum !== asmaNum) {
-          wrongOptions.add(
-            isNameToMeaning
-              ? ASMA_KAZAKH[wrongNum]
-              : ASMA_KAZAKH_TRANSLIT[wrongNum]
-          );
+        if (wrongNum === asmaNum) continue;
+        const wrongValue = isNameToMeaning
+          ? ASMA_KAZAKH[wrongNum]
+          : ASMA_KAZAKH_TRANSLIT[wrongNum];
+        if (wrongValue && wrongValue !== correctAnswer) {
+          wrongOptions.add(wrongValue);
         }
       }
-
-      const correctAnswer = isNameToMeaning ? meaning : kazakhName;
       const options = [
         correctAnswer,
         ...Array.from(wrongOptions),

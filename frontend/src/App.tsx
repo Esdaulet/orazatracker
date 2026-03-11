@@ -1,23 +1,26 @@
-import { useEffect } from 'react';
-import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
-import Lottie from 'lottie-react';
-import { useAuthStore } from './store/authStore';
-import { getStoredUser, getMyProfile } from './services/authService';
-import ramLoader from './assets/ramloader.json';
-import Login from './pages/Login';
-import Register from './pages/Register';
-import Dashboard from './pages/Dashboard';
-import AdminPanel from './pages/AdminPanel';
-import Profile from './pages/Profile';
-import CategoryCounter from './pages/CategoryCounter';
-import RamadanSchedule from './pages/RamadanSchedule';
-import CommunityProgress from './pages/CommunityProgress';
-import SurahOfWeek from './pages/SurahOfWeek';
-import Analytics from './pages/Analytics';
-import AsmaAlHusna from './pages/AsmaAlHusna';
-import FirstThreeNames from './pages/FirstThreeNames';
-import Quiz from './pages/Quiz';
-import RouteTracker from './components/RouteTracker';
+import { useEffect } from "react";
+import {
+  BrowserRouter as Router,
+  Routes,
+  Route,
+  Navigate,
+} from "react-router-dom";
+import { useAuthStore } from "./store/authStore";
+import { getStoredUser, getMyProfile } from "./services/authService";
+import Login from "./pages/Login";
+import Register from "./pages/Register";
+import Dashboard from "./pages/Dashboard";
+import AdminPanel from "./pages/AdminPanel";
+import Profile from "./pages/Profile";
+import CategoryCounter from "./pages/CategoryCounter";
+import RamadanSchedule from "./pages/RamadanSchedule";
+import CommunityProgress from "./pages/CommunityProgress";
+import SurahOfWeek from "./pages/SurahOfWeek";
+import Analytics from "./pages/Analytics";
+import AsmaAlHusna from "./pages/AsmaAlHusna";
+import FirstThreeNames from "./pages/FirstThreeNames";
+import Quiz from "./pages/Quiz";
+import RouteTracker from "./components/RouteTracker";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
@@ -25,16 +28,13 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-blue-50 to-indigo-100">
-        <div>
-          <Lottie
-            animationData={ramLoader}
-            loop
-            autoplay
-            style={{ width: 250, height: 250 }}
-            onError={(e) => console.error('Lottie error:', e)}
-          />
-        </div>
+      <div className="min-h-screen flex items-center justify-center bg-black overflow-hidden">
+        <audio src="/14.mp3" autoPlay />
+        <img
+          src="/10.gif"
+          alt=""
+          style={{ width: "100%", height: "100vh", objectFit: "cover" }}
+        />
       </div>
     );
   }
@@ -57,13 +57,13 @@ function App() {
     }
 
     // Read cached photoURL from localStorage (no network request needed)
-    const cachedPhotoURL = localStorage.getItem('photoURL') || undefined;
+    const cachedPhotoURL = localStorage.getItem("photoURL") || undefined;
 
     // Token exists → set user immediately so ProtectedRoute allows access
     const base = {
       uid: storedUser.userId,
-      email: '',
-      displayName: storedUser.displayName || 'User',
+      email: "",
+      displayName: storedUser.displayName || "User",
       isAdmin: storedUser.isAdmin || false,
       photoURL: cachedPhotoURL,
     };
@@ -76,14 +76,16 @@ function App() {
       getMyProfile()
         .then((profile) => {
           if (profile?.photoURL) {
-            localStorage.setItem('photoURL', profile.photoURL);
+            localStorage.setItem("photoURL", profile.photoURL);
             if (profile.photoURL !== cachedPhotoURL) {
               setUser({ ...base, photoURL: profile.photoURL });
             }
           }
         })
-        .catch(() => {/* ignore */});
-    }, 2000);
+        .catch(() => {
+          /* ignore */
+        });
+    }, 4000);
 
     return () => clearTimeout(timer);
   }, [setUser, setLoading]);
@@ -94,17 +96,94 @@ function App() {
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
-        <Route path="/dashboard" element={<ProtectedRoute><Dashboard /></ProtectedRoute>} />
-        <Route path="/community" element={<ProtectedRoute><CommunityProgress /></ProtectedRoute>} />
-        <Route path="/admin" element={<ProtectedRoute><AdminPanel /></ProtectedRoute>} />
-        <Route path="/analytics" element={<ProtectedRoute><Analytics /></ProtectedRoute>} />
-        <Route path="/profile" element={<ProtectedRoute><Profile /></ProtectedRoute>} />
-        <Route path="/schedule" element={<ProtectedRoute><RamadanSchedule /></ProtectedRoute>} />
-        <Route path="/counter/:categoryId" element={<ProtectedRoute><CategoryCounter /></ProtectedRoute>} />
-        <Route path="/names/:categoryId" element={<ProtectedRoute><FirstThreeNames /></ProtectedRoute>} />
-        <Route path="/surah" element={<ProtectedRoute><SurahOfWeek /></ProtectedRoute>} />
-        <Route path="/asma" element={<ProtectedRoute><AsmaAlHusna /></ProtectedRoute>} />
-        <Route path="/quiz" element={<ProtectedRoute><Quiz /></ProtectedRoute>} />
+        <Route
+          path="/dashboard"
+          element={
+            <ProtectedRoute>
+              <Dashboard />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/community"
+          element={
+            <ProtectedRoute>
+              <CommunityProgress />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/admin"
+          element={
+            <ProtectedRoute>
+              <AdminPanel />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/analytics"
+          element={
+            <ProtectedRoute>
+              <Analytics />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/profile"
+          element={
+            <ProtectedRoute>
+              <Profile />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/schedule"
+          element={
+            <ProtectedRoute>
+              <RamadanSchedule />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/counter/:categoryId"
+          element={
+            <ProtectedRoute>
+              <CategoryCounter />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/names/:categoryId"
+          element={
+            <ProtectedRoute>
+              <FirstThreeNames />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/surah"
+          element={
+            <ProtectedRoute>
+              <SurahOfWeek />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/asma"
+          element={
+            <ProtectedRoute>
+              <AsmaAlHusna />
+            </ProtectedRoute>
+          }
+        />
+        <Route
+          path="/quiz"
+          element={
+            <ProtectedRoute>
+              <Quiz />
+            </ProtectedRoute>
+          }
+        />
         <Route path="/" element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </Router>

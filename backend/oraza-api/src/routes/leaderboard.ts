@@ -119,15 +119,15 @@ router.get("/all", authMiddleware, async (
       }
       marathonScores.push({ userId: uid, displayName, photoURL, score: completedDays });
 
-      // Quiz: best percentage
-      let bestScore = 0;
+      // Quiz: sum of correct answers across all attempts
+      let totalScore = 0;
       for (const result of Object.values(userQuiz)) {
         const r = result as any;
-        if (r && typeof r.percentage === "number" && r.percentage > bestScore) {
-          bestScore = r.percentage;
+        if (r && typeof r.score === "number") {
+          totalScore += r.score;
         }
       }
-      quizScores.push({ userId: uid, displayName, photoURL, score: bestScore });
+      quizScores.push({ userId: uid, displayName, photoURL, score: totalScore });
     }
 
     res.json({

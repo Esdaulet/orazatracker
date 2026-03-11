@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import {
   getCommunityProgress,
@@ -12,6 +12,7 @@ import {
 import BottomNav from "../components/BottomNav";
 import Avatar from "../components/Avatar";
 import { Heart, Flame, Brain } from "lucide-react";
+import type { LeaderboardEntry } from "../services/leaderboardService";
 
 interface CommunityMember {
   userId: string;
@@ -21,9 +22,29 @@ interface CommunityMember {
   completed: Array<{ id: string; name: string }>;
 }
 
+const BG_STYLE = {
+  backgroundImage: "url('/3.jpg')",
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundAttachment: "fixed",
+};
+
+const glass = {
+  background: "rgba(0,0,0,0.3)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.12)",
+};
+
+const glassLight = {
+  background: "rgba(255,255,255,0.08)",
+  backdropFilter: "blur(12px)",
+  border: "1px solid rgba(255,255,255,0.15)",
+};
+
 export default function CommunityProgress() {
   const user = useAuthStore((state) => state.user);
   const navigate = useNavigate();
+  const location = useLocation();
   const [members, setMembers] = useState<CommunityMember[]>([]);
   const [marathonLeaderboard, setMarathonLeaderboard] =
     useState<LeaderboardData>({ topList: [], userRank: null });
@@ -34,7 +55,7 @@ export default function CommunityProgress() {
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
     "progress" | "asma" | "marathon" | "quiz"
-  >("progress");
+  >((location.state as { tab?: string })?.tab as "progress" | "asma" | "marathon" | "quiz" || "progress");
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -52,13 +73,11 @@ export default function CommunityProgress() {
       setMembers(cached);
       setLoading(false);
     }
-
     try {
       const [progressData, leaderboards] = await Promise.all([
         getCommunityProgress(today),
         getAllLeaderboards(),
       ]);
-
       setMembers(progressData);
       setMarathonLeaderboard(leaderboards.marathon);
       setQuizLeaderboard(leaderboards.quiz);
@@ -73,15 +92,22 @@ export default function CommunityProgress() {
     entry,
     isUserRank,
   }: {
-    entry: any;
+    entry: LeaderboardEntry;
     isUserRank?: boolean;
   }) => (
     <div
-      className={`flex items-center gap-3 p-3 rounded-lg ${
-        isUserRank ? "bg-indigo-50 border-2 border-indigo-300" : "bg-gray-50"
-      }`}
+      className="flex items-center gap-3 p-3 rounded-xl"
+      style={
+        isUserRank
+          ? {
+              background: "rgba(99,102,241,0.25)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(99,102,241,0.5)",
+            }
+          : glassLight
+      }
     >
-      <div className="text-xl font-bold text-gray-400 w-8 text-center">
+      <div className="text-xl font-bold text-white/50 w-8 text-center">
         {entry.medal || `#${entry.rank}`}
       </div>
       <Avatar
@@ -90,37 +116,33 @@ export default function CommunityProgress() {
         size="sm"
       />
       <div className="flex-1">
-        <p className="font-semibold text-gray-900">{entry.displayName}</p>
+        <p className="font-semibold text-white">{entry.displayName}</p>
       </div>
-      <div className="text-lg font-bold text-indigo-600">{entry.score}</div>
+      <div className="text-lg font-bold text-white">{entry.score}</div>
     </div>
   );
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
-        {/* Header skeleton */}
-        <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8">
-          <div className="h-8 w-52 bg-indigo-500 rounded animate-pulse mb-2" />
-          <div className="h-4 w-32 bg-indigo-400 rounded animate-pulse" />
+      <div className="min-h-screen pb-24 relative" style={BG_STYLE}>
+        <div className="absolute inset-0 bg-black/50" />
+        <div className="relative z-10 px-4 pt-12 pb-8">
+          <div className="h-8 w-52 bg-white/20 rounded animate-pulse mb-2" />
+          <div className="h-4 w-32 bg-white/15 rounded animate-pulse" />
         </div>
-        {/* Member cards skeleton */}
-        <div className="px-4 mt-6 flex flex-col gap-3">
+        <div className="relative z-10 px-4 flex flex-col gap-3">
           {[1, 2, 3, 4].map((i) => (
-            <div key={i} className="bg-white rounded-2xl p-4 shadow-sm">
+            <div key={i} className="rounded-2xl p-4" style={glass}>
               <div className="flex items-center gap-3 mb-3">
-                <div className="w-12 h-12 rounded-full bg-gray-200 animate-pulse flex-shrink-0" />
+                <div className="w-12 h-12 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
                 <div className="flex-1">
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className="h-5 w-8 bg-indigo-100 rounded animate-pulse" />
-                    <div className="h-5 w-28 bg-gray-200 rounded animate-pulse" />
-                  </div>
-                  <div className="h-4 w-24 bg-gray-200 rounded animate-pulse" />
+                  <div className="h-5 w-28 bg-white/20 rounded animate-pulse mb-2" />
+                  <div className="h-4 w-24 bg-white/15 rounded animate-pulse" />
                 </div>
               </div>
               <div className="flex gap-2">
-                <div className="h-6 w-20 bg-gray-100 rounded-full animate-pulse" />
-                <div className="h-6 w-16 bg-gray-100 rounded-full animate-pulse" />
+                <div className="h-6 w-20 bg-white/15 rounded-full animate-pulse" />
+                <div className="h-6 w-16 bg-white/15 rounded-full animate-pulse" />
               </div>
             </div>
           ))}
@@ -131,77 +153,67 @@ export default function CommunityProgress() {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 pb-24">
+    <div className="min-h-screen pb-24 relative" style={BG_STYLE}>
+      <div className="absolute inset-0 bg-black/50" />
+
       {/* Header */}
-      <div className="bg-gradient-to-r from-indigo-700 to-indigo-900 px-4 pt-12 pb-8 text-white">
-        <h1 className="text-2xl font-bold mb-2 flex items-center gap-2">
-          <Heart size={28} />
+      <div className="relative z-10 px-4 pt-12 pb-6">
+        <h1 className="text-2xl font-bold text-white mb-1 flex items-center gap-2">
+          <Heart size={26} />
           Қауымдастық
         </h1>
-        <p className="text-indigo-200">Бірге өсіп, бірге жетістік табайық</p>
+        <p className="text-white/50 text-sm">
+          Бірге өсіп, бірге жетістік табайық
+        </p>
       </div>
 
       {/* Tabs */}
-      <div className="sticky top-0 bg-white border-b border-gray-200 z-10">
-        <div className="px-4 flex gap-0">
-          <button
-            onClick={() => setActiveTab("progress")}
-            className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center ${
-              activeTab === "progress"
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-gray-600"
-            }`}
-          >
-            Бүгін
-          </button>
-          {/* <button
-                onClick={() => setActiveTab("asma")}
-                className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
-                  activeTab === "asma"
-                    ? "border-indigo-600 text-indigo-600"
-                    : "border-transparent text-gray-600"
-                }`}
-              >
-                <BookOpen size={18} />
-                Есімдер
-              </button> */}
-          <button
-            onClick={() => setActiveTab("marathon")}
-            className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
-              activeTab === "marathon"
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-gray-600"
-            }`}
-          >
-            <Flame size={18} />
-            Марафон
-          </button>
-          <button
-            onClick={() => setActiveTab("quiz")}
-            className={`flex-1 py-4 px-2 font-semibold border-b-2 transition-all text-center flex items-center justify-center gap-1 ${
-              activeTab === "quiz"
-                ? "border-indigo-600 text-indigo-600"
-                : "border-transparent text-gray-600"
-            }`}
-          >
-            <Brain size={18} />
-            Куиз
-          </button>
+      <div
+        className="sticky top-0 z-20 px-4"
+        style={{
+          background: "rgba(0,0,0,0.4)",
+          backdropFilter: "blur(16px)",
+          borderBottom: "1px solid rgba(255,255,255,0.1)",
+        }}
+      >
+        <div className="flex">
+          {[
+            { id: "progress", label: "Бүгін" },
+            { id: "marathon", label: "Марафон", icon: <Flame size={15} /> },
+            { id: "quiz", label: "Куиз", icon: <Brain size={15} /> },
+          ].map((tab) => (
+            <button
+              key={tab.id}
+              onClick={() =>
+                setActiveTab(
+                  tab.id as "progress" | "asma" | "marathon" | "quiz",
+                )
+              }
+              className={`flex-1 py-3.5 flex items-center justify-center gap-1 text-sm font-semibold border-b-2 transition-all ${
+                activeTab === tab.id
+                  ? "border-white text-white"
+                  : "border-transparent text-white/40"
+              }`}
+            >
+              {tab.icon}
+              {tab.label}
+            </button>
+          ))}
         </div>
       </div>
 
       {/* Content */}
-      <div className="px-4 mt-6 flex flex-col gap-3 pb-6">
+      <div className="relative z-10 px-4 mt-4 flex flex-col gap-3 pb-6">
         {/* Tab: Progress */}
         {activeTab === "progress" && (
           <>
             {members.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center shadow-sm mt-4">
-                <Heart size={48} className="mx-auto mb-3 text-gray-300" />
-                <p className="text-gray-700 font-medium">
+              <div className="rounded-2xl p-8 text-center mt-4" style={glass}>
+                <Heart size={40} className="mx-auto mb-3 text-white/30" />
+                <p className="text-white font-medium">
                   Әзірге ешкім прогрес белгілемеді
                 </p>
-                <p className="text-gray-400 text-sm mt-1">
+                <p className="text-white/40 text-sm mt-1">
                   Алғаш болып бастауға болады!
                 </p>
               </div>
@@ -209,114 +221,89 @@ export default function CommunityProgress() {
               members.map((member) => (
                 <div
                   key={member.userId}
-                  className="bg-white rounded-2xl p-4 shadow-sm"
+                  className="rounded-2xl p-4"
+                  style={glass}
                 >
                   <div className="flex items-start justify-between mb-3">
-                    <div className="flex-1 flex items-center gap-3">
+                    <div className="flex items-center gap-3">
                       <Avatar
                         photoURL={member.photoURL}
                         displayName={member.displayName}
                         size="md"
                       />
-                      <div className="flex-1">
+                      <div>
                         <div className="flex items-center gap-2">
-                          <h3 className="font-bold text-lg text-gray-900">
+                          <h3 className="font-bold text-white">
                             {member.displayName}
                           </h3>
-                          {member.completedCount > 0 && (
-                            <span className="text-lg">✨</span>
-                          )}
+                          {member.completedCount > 0 && <span>✨</span>}
                         </div>
-                        <p className="text-sm text-indigo-600 font-semibold mt-1">
+                        <p className="text-sm text-white/60 mt-0.5">
                           {member.completedCount} санат орындалды
                         </p>
                       </div>
                     </div>
                   </div>
-
                   {member.completed.length > 0 && (
                     <div className="flex flex-wrap gap-2">
                       {member.completed.map((cat) => (
                         <span
                           key={cat.id}
-                          className="text-xs bg-green-100 text-green-700 px-3 py-1 rounded-full font-medium flex items-center gap-1"
+                          className="text-xs px-3 py-1 rounded-full font-medium flex items-center gap-1"
+                          style={{
+                            background: "rgba(34,197,94,0.2)",
+                            color: "rgba(134,239,172,1)",
+                            border: "1px solid rgba(34,197,94,0.3)",
+                          }}
                         >
-                          <span>✓</span>
-                          {cat.name}
+                          ✓ {cat.name}
                         </span>
                       ))}
                     </div>
                   )}
-
                   {member.completedCount === 0 && (
-                    <p className="text-xs text-gray-500 italic">
+                    <p className="text-xs text-white/30 italic">
                       Әлі бастамады, бірақ ниеті бар 💪
                     </p>
                   )}
                 </div>
               ))
             )}
-          </>
-        )}
-        {/* Tab: Asma Leaderboard
-        {activeTab === "asma" && (
-          <>
-            <div className="bg-gradient-to-r from-purple-50 to-pink-50 rounded-2xl p-4 mb-4">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <BookOpen size={20} />
-                Есімдерді үйрену рейтингі
-              </h3>
-              <p className="text-sm text-gray-600">
-                Ең көп Алланың есімдерін үйренген қолданушылар
+            <div
+              className="rounded-2xl p-4 text-center"
+              style={{
+                background: "rgba(251,191,36,0.15)",
+                border: "1px solid rgba(251,191,36,0.25)",
+              }}
+            >
+              <p className="text-sm text-white italic">
+                "Жақсылықта жарысқан жан — нағыз табысқа жетеді."
               </p>
             </div>
-
-            {asmaLeaderboard.topList.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
-                <BookOpen size={48} className="mx-auto mb-3 text-gray-300" />
-                <p className="text-gray-700 font-medium">Әлі деректер жоқ</p>
-              </div>
-            ) : (
-              <div className="space-y-2">
-                {asmaLeaderboard.topList.map((entry) => (
-                  <LeaderboardCard key={entry.userId} entry={entry} />
-                ))}
-                {asmaLeaderboard.userRank &&
-                  !asmaLeaderboard.topList.find(
-                    (e) => e.userId === asmaLeaderboard.userRank?.userId,
-                  ) && (
-                    <div className="mt-6 pt-6 border-t-2 border-indigo-200">
-                      <p className="text-sm text-gray-600 mb-2 font-semibold">
-                        Сіздің орныңыз
-                      </p>
-                      <LeaderboardCard
-                        entry={asmaLeaderboard.userRank}
-                        isUserRank
-                      />
-                    </div>
-                  )}
-              </div>
-            )}
           </>
-        )} */}
+        )}
 
-        {/* Tab: Marathon Leaderboard */}
+        {/* Tab: Marathon */}
         {activeTab === "marathon" && (
           <>
-            <div className="bg-gradient-to-r from-orange-50 to-red-50 rounded-2xl p-4 mb-4">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Flame size={20} />
-                Марафон рейтингі
+            <div
+              className="rounded-2xl p-4 mb-2"
+              style={{
+                background: "rgba(249,115,22,0.15)",
+                border: "1px solid rgba(249,115,22,0.25)",
+              }}
+            >
+              <h3 className="font-bold text-white mb-1 flex items-center gap-2">
+                <Flame size={18} /> Марафон рейтингі
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white">
                 Ең ұзақ сериялық күндер қатарын сақтаған қолданушылар
               </p>
             </div>
-
             {marathonLeaderboard.topList.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
-                <Flame size={48} className="mx-auto mb-3 text-gray-300" />
-                <p className="text-gray-700 font-medium">Әлі деректер жоқ</p>
+              <div className="rounded-2xl p-8 text-center" style={glass}>
+                <Flame size={40} className="mx-auto mb-3 text-white/30" />
+                <p className="text-white font-medium">Әлі деректер жоқ</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -327,8 +314,11 @@ export default function CommunityProgress() {
                   !marathonLeaderboard.topList.find(
                     (e) => e.userId === marathonLeaderboard.userRank?.userId,
                   ) && (
-                    <div className="mt-6 pt-6 border-t-2 border-indigo-200">
-                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                    <div
+                      className="mt-4 pt-4"
+                      style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+                    >
+                      <p className="text-sm text-white/50 mb-2 font-semibold">
                         Сіздің орныңыз
                       </p>
                       <LeaderboardCard
@@ -342,23 +332,27 @@ export default function CommunityProgress() {
           </>
         )}
 
-        {/* Tab: Quiz Leaderboard */}
+        {/* Tab: Quiz */}
         {activeTab === "quiz" && (
           <>
-            <div className="bg-gradient-to-r from-purple-50 to-blue-50 rounded-2xl p-4 mb-4">
-              <h3 className="font-bold text-gray-900 mb-3 flex items-center gap-2">
-                <Brain size={20} />
-                Куиз рейтингі
+            <div
+              className="rounded-2xl p-4 mb-2"
+              style={{
+                background: "rgba(139,92,246,0.15)",
+                border: "1px solid rgba(139,92,246,0.25)",
+              }}
+            >
+              <h3 className="font-bold text-white mb-1 flex items-center gap-2">
+                <Brain size={18} /> Куиз рейтингі
               </h3>
-              <p className="text-sm text-gray-600">
+              <p className="text-sm text-white">
                 Ең жоғары квиз ұпайлары бар қолданушылар
               </p>
             </div>
-
             {quizLeaderboard.topList.length === 0 ? (
-              <div className="bg-white rounded-2xl p-8 text-center shadow-sm">
-                <Brain size={48} className="mx-auto mb-3 text-gray-300" />
-                <p className="text-gray-700 font-medium">Әлі деректер жоқ</p>
+              <div className="rounded-2xl p-8 text-center" style={glass}>
+                <Brain size={40} className="mx-auto mb-3 text-white/30" />
+                <p className="text-white font-medium">Әлі деректер жоқ</p>
               </div>
             ) : (
               <div className="space-y-2">
@@ -369,8 +363,11 @@ export default function CommunityProgress() {
                   !quizLeaderboard.topList.find(
                     (e) => e.userId === quizLeaderboard.userRank?.userId,
                   ) && (
-                    <div className="mt-6 pt-6 border-t-2 border-indigo-200">
-                      <p className="text-sm text-gray-600 mb-2 font-semibold">
+                    <div
+                      className="mt-4 pt-4"
+                      style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+                    >
+                      <p className="text-sm text-white/50 mb-2 font-semibold">
                         Сіздің орныңыз
                       </p>
                       <LeaderboardCard
@@ -383,31 +380,22 @@ export default function CommunityProgress() {
             )}
           </>
         )}
+
+        {(activeTab === "marathon" || activeTab === "quiz") && (
+          <div
+            className="rounded-2xl p-4 text-center"
+            style={{
+              background: "rgba(99,102,241,0.60)",
+              border: "1px solid rgba(99,102,241,0.25)",
+            }}
+          >
+            <p className="text-sm text-white italic">
+              "Үздіктердің ізінің артынан барсаң, сен де үздік боларсың!"
+            </p>
+          </div>
+        )}
       </div>
 
-      {/* Motivation Quote */}
-      {activeTab === "progress" && members.length > 0 && (
-        <div className="px-4 pb-6">
-          <div className="bg-gradient-to-r from-amber-50 to-orange-50 rounded-2xl p-4 border border-amber-200">
-            <p className="text-sm text-amber-900 text-center italic">
-              "Жақсылықта жарысқан жан — нағыз табысқа жетеді."
-            </p>
-          </div>
-        </div>
-      )}
-
-      {/* Motivation for leaderboards */}
-      {(activeTab === "asma" ||
-        activeTab === "marathon" ||
-        activeTab === "quiz") && (
-        <div className="px-4 pb-6">
-          <div className="bg-gradient-to-r from-blue-50 to-indigo-50 rounded-2xl p-4 border border-blue-200">
-            <p className="text-sm text-blue-900 text-center italic">
-              "Үздіктердің ізінің артынан барсаң, сен де үздік болар сың!"
-            </p>
-          </div>
-        </div>
-      )}
       <BottomNav />
     </div>
   );
