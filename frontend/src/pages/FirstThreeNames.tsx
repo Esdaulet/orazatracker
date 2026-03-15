@@ -25,7 +25,7 @@ const REPEATS_NEEDED = 33;
 const START_DATE = new Date("2026-02-19");
 
 const BG_STYLE: React.CSSProperties = {
-  backgroundImage: "url('/masjid1.jpg')",
+  backgroundImage: "url('/2.jpg')",
   backgroundSize: "cover",
   backgroundPosition: "center",
   backgroundAttachment: "fixed",
@@ -190,15 +190,30 @@ export default function FirstThreeNames() {
       <div className="min-h-screen flex flex-col pb-24" style={BG_STYLE}>
         <div className="absolute inset-0 bg-black/50" />
         <div className="relative z-10 px-4 pt-4 pb-8">
-          <div className="mb-4 w-8 h-8 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.15)" }} />
-          <div className="h-7 w-48 rounded animate-pulse" style={{ background: "rgba(255,255,255,0.15)" }} />
+          <div
+            className="mb-4 w-8 h-8 rounded animate-pulse"
+            style={{ background: "rgba(255,255,255,0.15)" }}
+          />
+          <div
+            className="h-7 w-48 rounded animate-pulse"
+            style={{ background: "rgba(255,255,255,0.15)" }}
+          />
         </div>
         <div className="relative z-10 px-4 mt-2 flex flex-col gap-3">
           {[1, 2, 3].map((i) => (
             <div key={i} className="p-4 animate-pulse" style={glassCard}>
-              <div className="h-6 w-32 rounded mb-3" style={{ background: "rgba(255,255,255,0.15)" }} />
-              <div className="h-4 w-24 rounded mb-2" style={{ background: "rgba(255,255,255,0.1)" }} />
-              <div className="h-3 w-full rounded" style={{ background: "rgba(255,255,255,0.1)" }} />
+              <div
+                className="h-6 w-32 rounded mb-3"
+                style={{ background: "rgba(255,255,255,0.15)" }}
+              />
+              <div
+                className="h-4 w-24 rounded mb-2"
+                style={{ background: "rgba(255,255,255,0.1)" }}
+              />
+              <div
+                className="h-3 w-full rounded"
+                style={{ background: "rgba(255,255,255,0.1)" }}
+              />
             </div>
           ))}
         </div>
@@ -220,7 +235,9 @@ export default function FirstThreeNames() {
           <ArrowLeft size={18} />
         </button>
         <h1 className="text-xl font-bold">Бүгінгі жаттайтын есімдер</h1>
-        <p className="text-white/60 text-xs mt-0.5">Әр есімді 33 рет қайталаңыз</p>
+        <p className="text-white/60 text-xs mt-0.5">
+          Әр есімді 33 рет қайталаңыз
+        </p>
       </div>
 
       {/* Names Cards */}
@@ -237,7 +254,10 @@ export default function FirstThreeNames() {
               style={{
                 ...glassCard,
                 ...(isComplete
-                  ? { border: "1px solid rgba(74,222,128,0.5)", background: "rgba(74,222,128,0.1)" }
+                  ? {
+                      border: "1px solid rgba(74,222,128,0.5)",
+                      background: "rgba(74,222,128,0.1)",
+                    }
                   : {}),
               }}
               className="p-3 transition-all"
@@ -245,8 +265,12 @@ export default function FirstThreeNames() {
               <div className="flex items-start justify-between mb-2">
                 <div className="flex-1">
                   <div className="flex items-center gap-2 mb-0.5">
-                    <h3 className="font-bold text-base text-white">{kazakhTranslit}</h3>
-                    {isComplete && <CheckCircle size={16} className="text-green-400" />}
+                    <h3 className="font-bold text-base text-white">
+                      {kazakhTranslit}
+                    </h3>
+                    {isComplete && (
+                      <CheckCircle size={16} className="text-green-400" />
+                    )}
                   </div>
                   <p className="text-xs text-white/60">{kazakhMeaning}</p>
                 </div>
@@ -259,7 +283,11 @@ export default function FirstThreeNames() {
                 style={
                   isComplete
                     ? { background: "rgba(74,222,128,0.2)", color: "#4ade80" }
-                    : { background: "rgba(255,255,255,0.15)", color: "white", border: "1px solid rgba(255,255,255,0.2)" }
+                    : {
+                        background: "rgba(255,255,255,0.15)",
+                        color: "white",
+                        border: "1px solid rgba(255,255,255,0.2)",
+                      }
                 }
               >
                 <div className="flex items-center justify-center gap-2">
@@ -289,7 +317,9 @@ export default function FirstThreeNames() {
             <CheckCircle size={24} className="text-green-400" />
             <div>
               <p className="font-bold text-white">Өте сәтті!</p>
-              <p className="text-sm text-white/70">Бүгінгі үшеуін толық үйренівіз! 🎉</p>
+              <p className="text-sm text-white/70">
+                Бүгінгі үшеуін толық үйренівіз! 🎉
+              </p>
             </div>
           </div>
         </div>

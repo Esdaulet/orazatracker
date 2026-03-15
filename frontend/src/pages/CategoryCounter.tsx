@@ -6,6 +6,33 @@ import { getProgress, saveProgress } from "../services/progressService";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import type { Category } from "../types";
 
+function RollingDigit({
+  digit,
+  animateKey,
+  isDone,
+}: {
+  digit: string;
+  animateKey: string;
+  isDone: boolean;
+}) {
+  return (
+    <div
+      style={{ overflow: "hidden", height: "1.1em", display: "inline-block" }}
+    >
+      <span
+        key={animateKey}
+        style={{
+          display: "block",
+          animation: "rollDown 0.25s cubic-bezier(0.23, 1, 0.32, 1)",
+          color: isDone ? "#4ade80" : "white",
+        }}
+      >
+        {digit}
+      </span>
+    </div>
+  );
+}
+
 const BG_STYLE = {
   backgroundImage: "url('/2.jpg')",
   backgroundSize: "cover",
@@ -24,6 +51,7 @@ export default function CategoryCounter() {
 
   const today = new Date().toISOString().split("T")[0];
   const saveTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const prevCountRef = useRef(0);
 
   useEffect(() => {
     if (!user || !categoryId) {
@@ -75,6 +103,7 @@ export default function CategoryCounter() {
   );
 
   const handleIncrement = useCallback(() => {
+    prevCountRef.current = count;
     const newCount = count + 1;
     setCount(newCount);
     debouncedSave(newCount);
@@ -131,11 +160,14 @@ export default function CategoryCounter() {
       </div>
 
       {/* Counter Section */}
-      <div className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8 gap-8">
+      <div
+        className="relative z-10 flex-1 flex flex-col items-center justify-center px-4 py-8 gap-8"
+        onClick={handleIncrement}
+      >
         {/* Big Counter — glass card */}
         <div
           onClick={handleIncrement}
-          className="w-48 h-48 rounded-3xl flex items-center justify-center cursor-pointer active:scale-95 transition-all shadow-2xl"
+          className="w-48 h-48 rounded-3xl flex items-center justify-center cursor-pointer  transition-all shadow-2xl"
           style={{
             background: "rgba(255,255,255,0.15)",
             backdropFilter: "blur(6px)",
@@ -143,14 +175,31 @@ export default function CategoryCounter() {
           }}
         >
           <div className="text-center">
+            <style>{`@keyframes rollDown { from { transform: translateY(-100%); opacity: 0; } to { transform: translateY(0); opacity: 1; } }`}</style>
             <p className="text-white/60 text-sm mb-2 tracking-widest uppercase">
               Есеп
             </p>
-            <p
-              className={`text-6xl font-bold ${isDone ? "text-green-400" : "text-white"}`}
-            >
-              {count}
-            </p>
+            <div className="text-6xl font-bold flex justify-center">
+              {(() => {
+                const currStr = String(count);
+                const prevStr = String(prevCountRef.current).padStart(
+                  currStr.length,
+                  "0",
+                );
+                return currStr
+                  .split("")
+                  .map((d, i) => (
+                    <RollingDigit
+                      key={i}
+                      digit={d}
+                      animateKey={
+                        prevStr[i] !== currStr[i] ? `${count}-${i}` : `s-${i}`
+                      }
+                      isDone={!!isDone}
+                    />
+                  ));
+              })()}
+            </div>
           </div>
         </div>
 

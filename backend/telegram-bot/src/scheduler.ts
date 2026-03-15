@@ -265,6 +265,22 @@ export function buildNewDesignMessage(): string {
   );
 }
 
+export function buildKadirMessage(): string {
+  const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
+  return (
+    `🌙✨ *Қадр Түнесі!*\n\n` +
+    `"Қадр түнесі мың айдан артықтыр" — Құран\n\n` +
+    `Бүгін бәрімізге берекеліктің, рақымның және магрифаттың түнесі. 🤲\n\n` +
+    `📱 Орaza қолданбасында:` +
+    `  • Ерте оянып, жүрегіңізді зікірге арнаңыз\n` +
+    `  • Алла есімдерін қайталаңыз\n` +
+    `  • Амалдарыңызды белгілеңіз\n` +
+    `  • Қоғамдастықтың ниеттесінен ләззат алыңыз\n\n` +
+    `💫 Дұға: Бәрімізді мойындап, амалдарымызды қабыл ет деп тәндіреміз 🤍\n\n` +
+    `🔗 [Қолданбаны ашу](${APP_URL})`
+  );
+}
+
 export function buildRamadanLast10Message(): string {
   const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
   return (
