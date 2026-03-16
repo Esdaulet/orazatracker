@@ -219,26 +219,6 @@ function getDaysUntilSurahDeadline(): number {
   return Math.max(diff, 0);
 }
 
-// Build Surah deadline reminder message
-export function buildSurahDeadlineMessage(): string {
-  const daysLeft = getDaysUntilSurahDeadline();
-  let titleEmoji = "⏰";
-  let urgencyText = "";
-
-  if (daysLeft === 1) {
-    titleEmoji = "🔴";
-    urgencyText = `\n\n⚠️ *Ертең дедлайн!* Сүреңізді жаттауды аяқтауға көңіл бөліңіз.`;
-  } else if (daysLeft <= 3) {
-    urgencyText = `\n\n✨ Дедлайн жақындап қалды — сүреңізді жаттауды жалғастырыңыз.`;
-  }
-
-  return (
-    `${titleEmoji} *Айтпақшы, апталық сүреге ${daysLeft} күн қалды.*\n\n` +
-    `Сүреңізді жаттауды ұмытпаңыз және бүгінгі амалдарыңызды белгілеңіз ✨` +
-    urgencyText
-  );
-}
-
 // Build new features announcement message
 export function buildNewFeaturesMessage(): string {
   const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
@@ -307,17 +287,6 @@ export function startScheduler(bot: TelegramBot): void {
       console.log("✅ Morning message sent:", new Date().toISOString());
     } catch (error) {
       console.error("❌ Morning message failed:", error);
-    }
-  });
-
-  // Surah deadline reminder: 07:01 Almaty (UTC+5) = 02:01 UTC
-  cron.schedule("1 2 * * *", async () => {
-    try {
-      const message = buildSurahDeadlineMessage();
-      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
-      console.log("✅ Surah deadline reminder sent:", new Date().toISOString());
-    } catch (error) {
-      console.error("❌ Surah deadline reminder failed:", error);
     }
   });
 

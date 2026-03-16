@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { getCategories } from "../services/categoryService";
-import { getProgress, saveProgress } from "../services/progressService";
-import { ArrowLeft, CheckCircle2, Square } from "lucide-react";
+import { getProgress } from "../services/progressService";
+import { CheckCircle2, Square } from "lucide-react";
 import BottomNav from "../components/BottomNav";
 import KadirNightModal from "../components/KadirNightModal";
 import type { Category } from "../types";
@@ -104,8 +104,8 @@ export default function KadirNight() {
           <p className="text-white font-semibold mb-1">{KADIR_DUA.translit}</p>
           <p className="text-white/70 text-sm mb-3">{KADIR_DUA.kazakh}</p>
           <p className="text-white/50 text-xs italic">
-            Айша анамыз (р.а.) Пайғамбарымыздан (с.ғ.с.) сұрағанда, ол кісі бұл дұғаны үйреткен.
-            Түн бойы қайталап айту ең абзалы.
+            Айша анамыз (р.а.) Пайғамбарымыздан (с.ғ.с.) сұрағанда, ол кісі бұл
+            дұғаны үйреткен. Түн бойы қайталап айту ең абзалы.
           </p>
         </div>
 
