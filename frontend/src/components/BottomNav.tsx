@@ -8,7 +8,7 @@ export default function BottomNav() {
   const isAdmin = useAuthStore((state) => state.user?.isAdmin);
 
   const tabs = [
-    { path: "/dashboard", icon: Home, label: "Басты бет" },
+    { path: "/kadir-night", icon: Home, label: "Басты бет" },
     { path: "/community", icon: Heart, label: "Топ" },
     { path: "/quiz", icon: Brain, label: "Куиз" },
     { path: "/asma", icon: BookOpen, label: "Есімдер" },

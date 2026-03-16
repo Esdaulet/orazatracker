@@ -32,7 +32,7 @@ export default function Login() {
   const setUser = useAuthStore((state) => state.setUser);
 
   if (getStoredUser()) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to="/kadir-night" replace />;
   }
 
   const formatPhone = (value: string) => {
@@ -59,7 +59,7 @@ export default function Login() {
         displayName: user.displayName || "Пайдаланушы",
         isAdmin: storedUser?.isAdmin || false,
       });
-      navigate("/dashboard");
+      navigate("/kadir-night");
     } catch {
       setError("Телефон нөмірі немесе құпиясөз қате");
     } finally {

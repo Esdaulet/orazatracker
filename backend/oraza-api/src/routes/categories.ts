@@ -33,7 +33,7 @@ router.post(
   authMiddleware,
   adminMiddleware,
   async (req: AuthRequest, res: Response) => {
-    const { name, target, meaning, order } = req.body;
+    const { name, target, meaning, translation, order } = req.body;
 
     if (!name || target === undefined) {
       return res.status(400).json({ error: "Название и цель обязательны" });
@@ -45,6 +45,7 @@ router.post(
         name,
         target: parseInt(target),
         meaning: meaning || "",
+        translation: translation || "",
         order: parseInt(order) || 0,
         createdAt: Date.now(),
       });
@@ -54,6 +55,7 @@ router.post(
         name,
         target: parseInt(target),
         meaning: meaning || "",
+        translation: translation || "",
         order: parseInt(order) || 0,
       });
     } catch (error) {
@@ -70,7 +72,7 @@ router.put(
   adminMiddleware,
   async (req: AuthRequest, res: Response) => {
     const { id } = req.params;
-    const { name, target, meaning, order } = req.body;
+    const { name, target, meaning, translation, order } = req.body;
 
     try {
       const snapshot = await db.ref(`categories/${id}`).get();
@@ -82,6 +84,7 @@ router.put(
       if (name !== undefined) updates.name = name;
       if (target !== undefined) updates.target = parseInt(target);
       if (meaning !== undefined) updates.meaning = meaning;
+      if (translation !== undefined) updates.translation = translation;
       if (order !== undefined) updates.order = parseInt(order);
 
       await db.ref(`categories/${id}`).update(updates);

@@ -19,6 +19,7 @@ export default function AdminPanel() {
     name: '',
     target: 100,
     meaning: '',
+    translation: '',
     order: 0,
   });
 
@@ -51,9 +52,9 @@ export default function AdminPanel() {
 
     try {
       if (editingId) {
-        await updateCategory(editingId, formData.name, formData.target, formData.meaning, formData.order);
+        await updateCategory(editingId, formData.name, formData.target, formData.meaning, formData.translation, formData.order);
       } else {
-        await createCategory(formData.name, formData.target, formData.meaning, formData.order);
+        await createCategory(formData.name, formData.target, formData.meaning, formData.translation, formData.order);
       }
       await loadCategories();
       resetForm();
@@ -79,6 +80,7 @@ export default function AdminPanel() {
       name: cat.name,
       target: cat.target,
       meaning: cat.meaning || '',
+      translation: cat.translation || '',
       order: cat.order,
     });
     setEditingId(cat.id);
@@ -86,7 +88,7 @@ export default function AdminPanel() {
   };
 
   const resetForm = () => {
-    setFormData({ name: '', target: 100, meaning: '', order: 0 });
+    setFormData({ name: '', target: 100, meaning: '', translation: '', order: 0 });
     setEditingId(null);
     setFormOpen(false);
   };
@@ -172,6 +174,17 @@ export default function AdminPanel() {
                   value={formData.meaning}
                   onChange={(e) => setFormData({ ...formData, meaning: e.target.value })}
                   placeholder="Субхәәнааллааһи уэ бихәмдиh..."
+                  className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
+                  rows={3}
+                />
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Аудармасы / Перевод (міндетті емес)</label>
+                <textarea
+                  value={formData.translation}
+                  onChange={(e) => setFormData({ ...formData, translation: e.target.value })}
+                  placeholder="Алла Субхану Тағала кемшілік атаулыдан пәк және барлық мадақ Аллаға тән..."
                   className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-indigo-500"
                   rows={3}
                 />

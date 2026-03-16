@@ -39,6 +39,7 @@ export interface Category {
   name: string;
   target: number;
   meaning?: string;
+  translation?: string;
   order: number;
 }
 

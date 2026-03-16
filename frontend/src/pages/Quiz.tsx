@@ -36,7 +36,9 @@ export default function Quiz() {
   const [loading, setLoading] = useState(true);
   const [questions, setQuestions] = useState<QuizQuestion[]>([]);
   const [currentQuestionIndex, setCurrentQuestionIndex] = useState(0);
-  const [selectedAnswers, setSelectedAnswers] = useState<Record<string, string>>({});
+  const [selectedAnswers, setSelectedAnswers] = useState<
+    Record<string, string>
+  >({});
   const [showResults, setShowResults] = useState(false);
   const [score, setScore] = useState(0);
 
@@ -92,7 +94,12 @@ export default function Quiz() {
     const answers = questions.map((q) => {
       const isCorrect = selectedAnswers[q.id] === q.correctAnswer;
       if (isCorrect) correctCount++;
-      return { questionId: q.id, selected: selectedAnswers[q.id] || "", correct: q.correctAnswer, isCorrect };
+      return {
+        questionId: q.id,
+        selected: selectedAnswers[q.id] || "",
+        correct: q.correctAnswer,
+        isCorrect,
+      };
     });
 
     const percentage = Math.round((correctCount / questions.length) * 100);
@@ -118,7 +125,7 @@ export default function Quiz() {
   // Back button component
   const BackButton = () => (
     <button
-      onClick={() => navigate("/dashboard")}
+      onClick={() => navigate("/kadir-night")}
       className="flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors"
     >
       <ChevronLeft size={20} />
@@ -143,7 +150,10 @@ export default function Quiz() {
             <div className="h-6 w-3/4 bg-white/15 rounded animate-pulse mb-6" />
             <div className="space-y-3 mb-6">
               {[1, 2, 3, 4].map((i) => (
-                <div key={i} className="h-14 w-full bg-white/10 rounded-xl animate-pulse" />
+                <div
+                  key={i}
+                  className="h-14 w-full bg-white/10 rounded-xl animate-pulse"
+                />
               ))}
             </div>
             <div className="flex gap-3">
@@ -165,8 +175,12 @@ export default function Quiz() {
         </div>
         <div className="relative z-10 px-4 text-center mt-20">
           <div className="text-6xl mb-4">📖</div>
-          <h2 className="text-2xl font-bold text-white mb-2">Есімдер әлі жоқ</h2>
-          <p className="text-white/60 mb-6">Куизге өту үшін алдымен Алланың 99 есімін үйрену қажет</p>
+          <h2 className="text-2xl font-bold text-white mb-2">
+            Есімдер әлі жоқ
+          </h2>
+          <p className="text-white/60 mb-6">
+            Куизге өту үшін алдымен Алланың 99 есімін үйрену қажет
+          </p>
           <button
             onClick={() => navigate("/asma")}
             className="px-6 py-3 rounded-xl font-semibold text-white transition-all active:scale-95"
@@ -190,13 +204,24 @@ export default function Quiz() {
               <div className="text-6xl mb-3">
                 {score === questions.length ? "🎉" : score >= 7 ? "👏" : "💪"}
               </div>
-              <h2 className="text-2xl font-bold text-white mb-2">Куиз аяқталды!</h2>
-              <div className="text-5xl font-bold text-white my-3">{score}/{questions.length}</div>
-              <p className="text-white/60 text-lg">{Math.round((score / questions.length) * 100)}%</p>
+              <h2 className="text-2xl font-bold text-white mb-2">
+                Куиз аяқталды!
+              </h2>
+              <div className="text-5xl font-bold text-white my-3">
+                {score}/{questions.length}
+              </div>
+              <p className="text-white/60 text-lg">
+                {Math.round((score / questions.length) * 100)}%
+              </p>
               <button
-                onClick={() => navigate("/community", { state: { tab: "quiz" } })}
+                onClick={() =>
+                  navigate("/community", { state: { tab: "quiz" } })
+                }
                 className="mt-4 w-full py-3 rounded-xl font-semibold text-white transition-all active:scale-95"
-                style={{ background: "rgba(99,60,200,0.35)", border: "1px solid rgba(139,92,246,0.5)" }}
+                style={{
+                  background: "rgba(99,60,200,0.35)",
+                  border: "1px solid rgba(139,92,246,0.5)",
+                }}
               >
                 🏆 Рейтингті көру
               </button>
@@ -210,29 +235,55 @@ export default function Quiz() {
                   <div
                     key={q.id}
                     className="p-3 rounded-xl text-left"
-                    style={isCorrect
-                      ? { background: "rgba(34,197,94,0.2)", border: "1px solid rgba(34,197,94,0.3)" }
-                      : { background: "rgba(239,68,68,0.2)", border: "1px solid rgba(239,68,68,0.3)" }
+                    style={
+                      isCorrect
+                        ? {
+                            background: "rgba(34,197,94,0.2)",
+                            border: "1px solid rgba(34,197,94,0.3)",
+                          }
+                        : {
+                            background: "rgba(239,68,68,0.2)",
+                            border: "1px solid rgba(239,68,68,0.3)",
+                          }
                     }
                   >
                     <div className="flex items-start gap-3">
-                      {isCorrect
-                        ? <CheckCircle2 size={18} className="text-green-400 mt-0.5 flex-shrink-0" />
-                        : <XCircle size={18} className="text-red-400 mt-0.5 flex-shrink-0" />
-                      }
+                      {isCorrect ? (
+                        <CheckCircle2
+                          size={18}
+                          className="text-green-400 mt-0.5 flex-shrink-0"
+                        />
+                      ) : (
+                        <XCircle
+                          size={18}
+                          className="text-red-400 mt-0.5 flex-shrink-0"
+                        />
+                      )}
                       <div className="flex-1 text-sm">
                         <p className="font-semibold text-white">
-                          {idx + 1}. {q.type === "name-to-meaning" ? q.kazakhName : q.meaning}
+                          {idx + 1}.{" "}
+                          {q.type === "name-to-meaning"
+                            ? q.kazakhName
+                            : q.meaning}
                         </p>
                         <p className="text-white/60">
                           Таңдаған:{" "}
-                          <span className={isCorrect ? "text-green-400 font-semibold" : "text-red-400"}>
+                          <span
+                            className={
+                              isCorrect
+                                ? "text-green-400 font-semibold"
+                                : "text-red-400"
+                            }
+                          >
                             {answer}
                           </span>
                         </p>
                         {!isCorrect && (
                           <p className="text-white/60">
-                            Дұрыс: <span className="text-green-400 font-semibold">{q.correctAnswer}</span>
+                            Дұрыс:{" "}
+                            <span className="text-green-400 font-semibold">
+                              {q.correctAnswer}
+                            </span>
                           </p>
                         )}
                       </div>
@@ -245,7 +296,10 @@ export default function Quiz() {
             <button
               onClick={() => window.location.reload()}
               className="w-full py-3 rounded-xl font-semibold text-white transition-all active:scale-95"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.25)" }}
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.25)",
+              }}
             >
               Қайта бастау
             </button>
@@ -268,13 +322,18 @@ export default function Quiz() {
               Сұрақ {currentQuestionIndex + 1}/{questions.length}
             </span>
             <span className="text-sm text-white/50">
-              {Math.round(((currentQuestionIndex + 1) / questions.length) * 100)}%
+              {Math.round(
+                ((currentQuestionIndex + 1) / questions.length) * 100,
+              )}
+              %
             </span>
           </div>
           <div className="w-full bg-white/20 rounded-full h-2">
             <div
               className="bg-white h-2 rounded-full transition-all"
-              style={{ width: `${((currentQuestionIndex + 1) / questions.length) * 100}%` }}
+              style={{
+                width: `${((currentQuestionIndex + 1) / questions.length) * 100}%`,
+              }}
             />
           </div>
         </div>
@@ -298,11 +357,20 @@ export default function Quiz() {
 
               let optionStyle: React.CSSProperties;
               if (isSelected && isCorrect) {
-                optionStyle = { background: "rgba(34,197,94,0.35)", border: "1px solid rgba(34,197,94,0.6)" };
+                optionStyle = {
+                  background: "rgba(34,197,94,0.35)",
+                  border: "1px solid rgba(34,197,94,0.6)",
+                };
               } else if (isSelected && !isCorrect) {
-                optionStyle = { background: "rgba(239,68,68,0.35)", border: "1px solid rgba(239,68,68,0.6)" };
+                optionStyle = {
+                  background: "rgba(239,68,68,0.35)",
+                  border: "1px solid rgba(239,68,68,0.6)",
+                };
               } else if (!isSelected && isCorrect && showResults) {
-                optionStyle = { background: "rgba(34,197,94,0.2)", border: "1px solid rgba(34,197,94,0.4)" };
+                optionStyle = {
+                  background: "rgba(34,197,94,0.2)",
+                  border: "1px solid rgba(34,197,94,0.4)",
+                };
               } else {
                 optionStyle = glassDark;
               }
@@ -335,9 +403,14 @@ export default function Quiz() {
               onClick={handleNextQuestion}
               disabled={!selectedAnswers[currentQuestion.id]}
               className="flex-1 py-3 rounded-xl font-semibold text-white disabled:opacity-30 transition-all"
-              style={{ background: "rgba(255,255,255,0.15)", border: "1px solid rgba(255,255,255,0.3)" }}
+              style={{
+                background: "rgba(255,255,255,0.15)",
+                border: "1px solid rgba(255,255,255,0.3)",
+              }}
             >
-              {currentQuestionIndex === questions.length - 1 ? "Бітір" : "Алға →"}
+              {currentQuestionIndex === questions.length - 1
+                ? "Бітір"
+                : "Алға →"}
             </button>
           </div>
         </div>

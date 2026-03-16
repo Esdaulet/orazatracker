@@ -5,6 +5,7 @@ export interface Category {
   name: string;
   target: number;
   meaning?: string;
+  translation?: string;
   order: number;
 }
 
@@ -16,11 +17,12 @@ export const createCategory = async (
   name: string,
   target: number,
   meaning: string = '',
+  translation: string = '',
   order: number = 0
 ): Promise<Category> => {
   return api('/categories', {
     method: 'POST',
-    body: JSON.stringify({ name, target, meaning, order }),
+    body: JSON.stringify({ name, target, meaning, translation, order }),
   });
 };
 
@@ -29,11 +31,12 @@ export const updateCategory = async (
   name?: string,
   target?: number,
   meaning?: string,
+  translation?: string,
   order?: number
 ): Promise<Category> => {
   return api(`/categories/${id}`, {
     method: 'PUT',
-    body: JSON.stringify({ name, target, meaning, order }),
+    body: JSON.stringify({ name, target, meaning, translation, order }),
   });
 };
 

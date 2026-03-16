@@ -66,7 +66,7 @@ export default function FirstThreeNames() {
 
   useEffect(() => {
     if (!user || !categoryId) {
-      navigate("/dashboard");
+      navigate("/kadir-night");
       return;
     }
 
@@ -228,7 +228,7 @@ export default function FirstThreeNames() {
       {/* Header */}
       <div className="relative z-10 px-4 pt-3 pb-4 text-white">
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/kadir-night")}
           className="mb-3 p-1.5 rounded-full transition"
           style={{ background: "rgba(255,255,255,0.1)" }}
         >

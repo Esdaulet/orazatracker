@@ -3,6 +3,7 @@ import { useParams, useNavigate } from "react-router-dom";
 import { useAuthStore } from "../store/authStore";
 import { getCategories } from "../services/categoryService";
 import { getProgress, saveProgress } from "../services/progressService";
+import BottomNav from "../components/BottomNav";
 import { ArrowLeft, CheckCircle } from "lucide-react";
 import type { Category } from "../types";
 
@@ -55,7 +56,7 @@ export default function CategoryCounter() {
 
   useEffect(() => {
     if (!user || !categoryId) {
-      navigate("/dashboard");
+      navigate("/kadir-night");
       return;
     }
     loadData();
@@ -67,7 +68,7 @@ export default function CategoryCounter() {
       const categories = await getCategories();
       const cat = categories.find((c) => c.id === categoryId);
       if (!cat) {
-        navigate("/dashboard");
+        navigate("/kadir-night");
         return;
       }
       setCategory(cat);
@@ -137,6 +138,83 @@ export default function CategoryCounter() {
   }
 
   const progress = Math.min((count / category.target) * 100, 100);
+  const isSurah =
+    category.name.includes("сүресі") || category.name.includes("сүрөсі");
+
+  if (isSurah) {
+    return (
+      <div className="min-h-screen flex flex-col relative" style={BG_STYLE}>
+        {/* Overlay */}
+        <div className="absolute inset-0 bg-black/50" />
+
+        {/* Header */}
+        <div className="relative z-10 px-4 pt-12 pb-6">
+          <button
+            onClick={() => navigate("/kadir-night")}
+            className="mb-6 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
+          >
+            <ArrowLeft size={20} />
+          </button>
+          <div className="flex justify-between items-end mb-4">
+            <h1 className="text-3xl font-bold text-white">{category.name}</h1>
+            <span className="text-white/70 text-lg font-medium">
+              / {category.target}
+            </span>
+          </div>
+        </div>
+
+        {/* Surah Content */}
+        <div className="relative z-10 flex-1 flex flex-col px-4 py-4 gap-4 overflow-y-auto pb-32">
+          <div
+            className="rounded-2xl p-6"
+            style={{
+              background: "rgba(0,0,0,0.3)",
+              backdropFilter: "blur(12px)",
+              border: "1px solid rgba(255,255,255,0.12)",
+            }}
+          >
+            {category.meaning && (
+              <div className="mb-6">
+                <p className="text-right text-yellow-400 font-semibold text-base leading-relaxed whitespace-pre-wrap">
+                  {category.meaning}
+                </p>
+              </div>
+            )}
+
+            {category.translation && (
+              <div>
+                <p className="text-white/80 text-sm leading-relaxed whitespace-pre-wrap">
+                  {category.translation}
+                </p>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {/* Counter Button */}
+        <div className="fixed bottom-28 left-0 right-0 px-4 z-40 flex justify-center pointer-events-none">
+          <button
+            onClick={handleIncrement}
+            className="w-28 h-28 rounded-full flex items-center justify-center cursor-pointer transition-all active:scale-95 shadow-2xl pointer-events-auto"
+            style={{
+              background: "rgba(255,255,255,0.15)",
+              backdropFilter: "blur(6px)",
+              border: "1px solid rgba(255,255,255,0.25)",
+            }}
+          >
+            <div className="text-center">
+              <p className="text-white/60 text-xs mb-1 tracking-widest">
+                Оқыдым
+              </p>
+              <p className="text-4xl font-bold text-yellow-400">{count}</p>
+            </div>
+          </button>
+        </div>
+
+        <BottomNav />
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col relative" style={BG_STYLE}>
@@ -146,16 +224,23 @@ export default function CategoryCounter() {
       {/* Header */}
       <div className="relative z-10 px-4 pt-12 pb-6">
         <button
-          onClick={() => navigate("/dashboard")}
+          onClick={() => navigate("/kadir-night")}
           className="mb-6 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
         >
           <ArrowLeft size={20} />
         </button>
-        <div className="flex justify-between items-end">
-          <h1 className="text-3xl font-bold text-white">{category.name}</h1>
-          <span className="text-white/70 text-lg font-medium">
-            / {category.target}
-          </span>
+        <div>
+          <div className="flex justify-between items-end mb-3">
+            <h1 className="text-3xl font-bold text-white">{category.name}</h1>
+            <span className="text-white/70 text-lg font-medium">
+              / {category.target}
+            </span>
+          </div>
+          {category.translation && (
+            <p className="text-white/70 text-sm italic">
+              {category.translation}
+            </p>
+          )}
         </div>
       </div>
 

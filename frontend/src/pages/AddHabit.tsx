@@ -1,35 +1,46 @@
-import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { addHabit } from '../services/habitService';
-import BottomNav from '../components/BottomNav';
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
+import { addHabit } from "../services/habitService";
+import BottomNav from "../components/BottomNav";
 
 const categories = [
-  { value: 'zikr', emoji: '📿', label: 'Зикры' },
-  { value: 'quran', emoji: '📖', label: 'Коран' },
-  { value: 'prayer', emoji: '🤲', label: 'Намаз' },
-  { value: 'other', emoji: '✨', label: 'Другое' },
+  { value: "zikr", emoji: "📿", label: "Зикры" },
+  { value: "quran", emoji: "📖", label: "Коран" },
+  { value: "prayer", emoji: "🤲", label: "Намаз" },
+  { value: "other", emoji: "✨", label: "Другое" },
 ];
 
 export default function AddHabit() {
   const navigate = useNavigate();
-  const [name, setName] = useState('');
-  const [description, setDescription] = useState('');
-  const [category, setCategory] = useState<'zikr' | 'quran' | 'prayer' | 'other'>('zikr');
-  const [target, setTarget] = useState('100');
-  const [unit, setUnit] = useState('раз');
+  const [name, setName] = useState("");
+  const [description, setDescription] = useState("");
+  const [category, setCategory] = useState<
+    "zikr" | "quran" | "prayer" | "other"
+  >("zikr");
+  const [target, setTarget] = useState("100");
+  const [unit, setUnit] = useState("раз");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError('');
-    if (!name.trim()) { setError('Введи название привычки'); return; }
+    setError("");
+    if (!name.trim()) {
+      setError("Введи название привычки");
+      return;
+    }
     setLoading(true);
     try {
-      await addHabit({ name, description, category, target: parseInt(target), unit });
-      navigate('/dashboard');
+      await addHabit({
+        name,
+        description,
+        category,
+        target: parseInt(target),
+        unit,
+      });
+      navigate("/dashboard");
     } catch {
-      setError('Ошибка при добавлении');
+      setError("Ошибка при добавлении");
     } finally {
       setLoading(false);
     }
@@ -39,7 +50,12 @@ export default function AddHabit() {
     <div className="min-h-screen bg-gray-50 pb-24">
       {/* Header */}
       <div className="bg-indigo-700 px-4 pt-12 pb-6 flex items-center gap-3">
-        <button onClick={() => navigate('/dashboard')} className="text-white text-xl">←</button>
+        <button
+          onClick={() => navigate("/kadir-night")}
+          className="text-white text-xl"
+        >
+          ←
+        </button>
         <h1 className="text-white text-xl font-bold">Новая привычка</h1>
       </div>
 
@@ -55,8 +71,8 @@ export default function AddHabit() {
                 onClick={() => setCategory(cat.value as any)}
                 className={`flex flex-col items-center py-3 rounded-xl transition ${
                   category === cat.value
-                    ? 'bg-indigo-600 text-white'
-                    : 'bg-gray-100 text-gray-600'
+                    ? "bg-indigo-600 text-white"
+                    : "bg-gray-100 text-gray-600"
                 }`}
               >
                 <span className="text-2xl">{cat.emoji}</span>
@@ -122,7 +138,7 @@ export default function AddHabit() {
           disabled={loading}
           className="w-full bg-indigo-600 text-white font-bold py-4 rounded-2xl text-lg disabled:opacity-50"
         >
-          {loading ? 'Добавляем...' : 'Добавить привычку'}
+          {loading ? "Добавляем..." : "Добавить привычку"}
         </button>
       </form>
 

@@ -20,6 +20,7 @@ import Analytics from "./pages/Analytics";
 import AsmaAlHusna from "./pages/AsmaAlHusna";
 import FirstThreeNames from "./pages/FirstThreeNames";
 import Quiz from "./pages/Quiz";
+import KadirNight from "./pages/KadirNight";
 import RouteTracker from "./components/RouteTracker";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -184,7 +185,15 @@ function App() {
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/dashboard" replace />} />
+        <Route
+          path="/kadir-night"
+          element={
+            <ProtectedRoute>
+              <KadirNight />
+            </ProtectedRoute>
+          }
+        />
+        <Route path="/" element={<Navigate to="/kadir-night" replace />} />
       </Routes>
     </Router>
   );
