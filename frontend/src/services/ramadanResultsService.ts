@@ -14,6 +14,7 @@ export interface Nomination {
   meaning: string;
   winner: string;
   total: number;
+  unit?: string;
 }
 
 export interface RamadanResults {

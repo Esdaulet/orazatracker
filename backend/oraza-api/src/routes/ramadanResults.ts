@@ -7,6 +7,17 @@ const router = Router();
 const RAMADAN_START = "2026-02-19";
 const RAMADAN_END = "2026-03-19";
 
+const NOMINATION_NAMES: Record<string, string> = {
+  "cat_1771482184291": "Салауат шебері",
+  "cat_1771483661516": "Иман сөзі шебері",
+  "cat_1771483730709": "Тәубе шебері",
+  "cat_1771500550356": "Көркем есімдер білгірі",
+  "cat_1773620403472": "Зікір шебері",
+  "special_active":    "Тұрақтылық үлгісі",
+  "special_referrals": "Жақсылық таратушы",
+  "special_quiz":      "Білім шебері",
+};
+
 // GET /ramadan-results — personal Ramadan summary for current user
 router.get("/", authMiddleware, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
@@ -92,13 +103,17 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response): Promise
       .filter(Boolean)
       .sort((a: any, b: any) => b.total - a.total);
 
-    // Category nominations — who has the most per category across all users (full Ramadan)
-    const [allProgressSnap, usersSnap] = await Promise.all([
+    // Category nominations + special nominations
+    const [allProgressSnap, usersSnap, referralsSnap, allQuizSnap] = await Promise.all([
       db.ref("progress").get(),
       db.ref("users").get(),
+      db.ref("referrals").get(),
+      db.ref("quiz-results").get(),
     ]);
     const allProgress = allProgressSnap.val() || {};
     const users = usersSnap.val() || {};
+    const allReferrals = referralsSnap.val() || {};
+    const allQuiz = allQuizSnap.val() || {};
 
     // Step 1: sum per user per category across all Ramadan dates
     const userCategoryTotals: Record<string, Record<string, number>> = {};
@@ -144,17 +159,96 @@ router.get("/", authMiddleware, async (req: AuthRequest, res: Response): Promise
         if (!cat) return null;
         return {
           categoryId: catId,
-          categoryName: cat.name,
+          categoryName: NOMINATION_NAMES[catId] || cat.name,
           meaning: cat.meaning || "",
           winner: winner.displayName,
           total: winner.total,
+          unit: "рет",
         };
       })
       .filter(Boolean);
 
+    // Special nomination: Ең белсенді — most active days
+    let mostActiveName = "";
+    let mostActiveDays = 0;
+    for (const [uid, userProgressData] of Object.entries(allProgress)) {
+      const userData = users[uid] as any;
+      if (!userData || userData.role === "admin") continue;
+      const days = Object.keys(userProgressData as any).filter(
+        (d) => d >= RAMADAN_START && d <= RAMADAN_END &&
+          Object.keys((userProgressData as any)[d] || {}).length > 0
+      ).length;
+      if (days > mostActiveDays) {
+        mostActiveDays = days;
+        mostActiveName = userData.displayName || "User";
+      }
+    }
+    if (mostActiveName) {
+      nominations.push({
+        categoryId: "special_active",
+        categoryName: NOMINATION_NAMES["special_active"],
+        meaning: "Рамазанда ең көп күн белсенді болған",
+        winner: mostActiveName,
+        total: mostActiveDays,
+        unit: "күн",
+      } as any);
+    }
+
+
+    // Special nomination: Жаңа мүшелер — most referrals
+    let mostReferralsName = "";
+    let mostReferralsCount = 0;
+    for (const [uid, refData] of Object.entries(allReferrals)) {
+      const userData = users[uid] as any;
+      if (!userData || userData.role === "admin") continue;
+      const count = Object.keys(refData as any).length;
+      if (count > mostReferralsCount) {
+        mostReferralsCount = count;
+        mostReferralsName = userData.displayName || "User";
+      }
+    }
+    if (mostReferralsName) {
+      nominations.push({
+        categoryId: "special_referrals",
+        categoryName: NOMINATION_NAMES["special_referrals"],
+        meaning: "Ең көп адам шақырған",
+        winner: mostReferralsName,
+        total: mostReferralsCount,
+        unit: "адам",
+      } as any);
+    }
+
+    // Special nomination: Квиз чемпионы — best total quiz score
+    let bestQuizName = "";
+    let bestQuizTotal = 0;
+    for (const [uid, quizData] of Object.entries(allQuiz)) {
+      const userData = users[uid] as any;
+      if (!userData || userData.role === "admin") continue;
+      let total = 0;
+      for (const [date, r] of Object.entries(quizData as any)) {
+        if (date >= RAMADAN_START && date <= RAMADAN_END) {
+          total += (r as any)?.score || 0;
+        }
+      }
+      if (total > bestQuizTotal) {
+        bestQuizTotal = total;
+        bestQuizName = userData.displayName || "User";
+      }
+    }
+    if (bestQuizName) {
+      nominations.push({
+        categoryId: "special_quiz",
+        categoryName: NOMINATION_NAMES["special_quiz"],
+        meaning: "Викторинада ең жоғары нәтиже жинаған",
+        winner: bestQuizName,
+        total: bestQuizTotal,
+        unit: "ұпай",
+      } as any);
+    }
+
     res.json({
       activeDays,
-      totalRamadanDays: 30,
+      totalRamadanDays: 29,
       asmaLearned,
       totalAsma: 99,
       quiz: {

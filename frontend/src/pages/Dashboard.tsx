@@ -30,6 +30,17 @@ interface Announcement {
 
 const getAnnouncements = (): Announcement[] => [
   {
+    id: "ramadan_results",
+    emoji: "🌙",
+    title: "Сіздің Рамазаныңыз 2026",
+    desc: "Жетістіктеріңіз бен үздіктер",
+    cta: "Ашу →",
+    route: "/ramadan-results",
+    gradient: "from-violet-800 to-purple-900",
+    storageKey: "ann_ramadan_results_seen",
+    animationData: announcementAnimation,
+  },
+  {
     id: "quiz",
     emoji: "🧠",
     title: "Жаңа! Куиз ойыны",
@@ -86,17 +97,6 @@ const getAnnouncements = (): Announcement[] => [
   },
 ];
 
-const RAMADAN_START = new Date(2026, 1, 19);
-
-function getRamadanDay(): number {
-  const now = new Date();
-  const diff = Math.floor(
-    (now.getTime() - RAMADAN_START.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  if (diff < 0 || diff >= 30) return 0;
-  return diff + 1;
-}
-
 const BG_STYLE = {
   backgroundImage: "url('/masjid1.jpg')",
   backgroundSize: "cover",
@@ -130,7 +130,6 @@ export default function Dashboard() {
   const touchStartX = useRef(0);
 
   const today = new Date().toISOString().split("T")[0];
-  const ramadanDay = getRamadanDay();
   const currentMember = newMembers[currentMemberIndex];
   const announcements = getAnnouncements();
 
@@ -251,7 +250,7 @@ export default function Dashboard() {
               Қош келдіңіз, {user?.displayName}!
             </h1>
             <div className="text-white/60 text-xs flex items-center gap-1 mt-0.5">
-              <span>Рамазанның {ramadanDay}-күні</span>
+              <span>Амалдарыңызды жалғастырыңыз</span>
               <Star size={11} fill="currentColor" />
             </div>
           </div>
@@ -260,7 +259,7 @@ export default function Dashboard() {
         {categories.length > 0 && (
           <div className="rounded-xl p-3" style={glass}>
             <div className="flex justify-between text-white text-xs mb-2">
-              <span className="text-white/70">Орындалған</span>
+              <span className="text-white/70">Бүгінгі амалдар</span>
               <span className="font-bold">
                 {completedCount}/{categories.length}
               </span>
@@ -325,6 +324,9 @@ export default function Dashboard() {
                 </div>
                 <button
                   onClick={() => {
+                    if (ann.id === "ramadan_results") {
+                      localStorage.removeItem("ramadan2026_results_seen");
+                    }
                     navigate(ann.route);
                     localStorage.setItem(ann.storageKey, "true");
                   }}

@@ -1,20 +1,30 @@
+import { motion } from "framer-motion";
+
 export default function IntroSlide() {
   return (
-    <div className="flex flex-col items-center justify-center h-full px-8 text-center"
-      style={{ background: "linear-gradient(160deg, #0f0c29, #302b63, #24243e)" }}>
-      <div className="text-7xl mb-8">🌙</div>
-      <p className="text-white/60 text-sm tracking-[0.3em] uppercase mb-4">2026</p>
-      <h1 className="text-4xl font-bold text-white leading-tight mb-4">
-        Рамазан<br />аяқталды
-      </h1>
-      <p className="text-white/50 text-base font-light mt-6">
-        Осы айда не жасағаныңызды<br />бірге қарайық
-      </p>
-      <div className="mt-16 flex gap-1.5">
-        {[...Array(4)].map((_, i) => (
-          <div key={i} className={`h-1 rounded-full ${i === 0 ? "w-6 bg-white/60" : "w-1.5 bg-white/20"}`} />
-        ))}
-      </div>
+    <div
+      className="flex flex-col items-center justify-center h-full px-8 text-center"
+      style={{ background: "linear-gradient(160deg, #0f0c29, #302b63, #24243e)" }}
+    >
+      <motion.div className="text-7xl mb-8"
+        initial={{ scale: 0.5, opacity: 0 }} animate={{ scale: 1, opacity: 1 }}
+        transition={{ duration: 0.6, ease: "easeOut" }}>🌙</motion.div>
+
+      <motion.p className="text-white/60 text-sm tracking-[0.3em] uppercase mb-4"
+        initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.3, duration: 0.5 }}>2026</motion.p>
+
+      <motion.h1 className="text-3xl font-bold text-white leading-tight mb-4"
+        initial={{ opacity: 0, y: 30 }} animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.5, duration: 0.5 }}>
+        Бұл ай —<br />нұрға толы болды
+      </motion.h1>
+
+      <motion.p className="text-white/50 text-base font-light mt-6"
+        initial={{ opacity: 0 }} animate={{ opacity: 1 }}
+        transition={{ delay: 0.9, duration: 0.6 }}>
+        Әрбір күні —<br />Раббыңа бір қадам
+      </motion.p>
     </div>
   );
 }

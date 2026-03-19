@@ -6,6 +6,9 @@ import type { RamadanResults as RamadanResultsType } from "../services/ramadanRe
 import IntroSlide from "../components/ramadan-results/IntroSlide";
 import ActiveDaysSlide from "../components/ramadan-results/ActiveDaysSlide";
 import NominationSlide from "../components/ramadan-results/NominationSlide";
+import PersonalStatsSlide from "../components/ramadan-results/PersonalStatsSlide";
+import NominationsIntroSlide from "../components/ramadan-results/NominationsIntroSlide";
+import OutroSlide from "../components/ramadan-results/OutroSlide";
 import LeaderboardSlide from "../components/ramadan-results/LeaderboardSlide";
 
 interface Props {
@@ -31,8 +34,11 @@ export default function RamadanResults({ onDone }: Props) {
   const slides = data ? [
     "intro",
     "active",
+    "personal",
+    "nominations-intro",
     ...data.nominations.map((_, i) => `nomination-${i}`),
     "leaderboard",
+    "outro",
   ] : ["intro"];
 
   const totalSlides = slides.length;
@@ -70,7 +76,10 @@ export default function RamadanResults({ onDone }: Props) {
     const slide = slides[currentSlide];
     if (slide === "intro") return <IntroSlide />;
     if (slide === "active") return <ActiveDaysSlide data={data} />;
+    if (slide === "personal") return <PersonalStatsSlide data={data} />;
+    if (slide === "nominations-intro") return <NominationsIntroSlide />;
     if (slide === "leaderboard") return <LeaderboardSlide />;
+    if (slide === "outro") return <OutroSlide />;
     if (slide.startsWith("nomination-")) {
       const idx = parseInt(slide.split("-")[1]);
       return <NominationSlide nomination={data.nominations[idx]} index={idx} />;
@@ -105,7 +114,7 @@ export default function RamadanResults({ onDone }: Props) {
       </button>
 
       {/* Slide content */}
-      <div className="h-full w-full">
+      <div key={slides[currentSlide]} className="h-full w-full">
         {renderSlide()}
       </div>
 
