@@ -326,13 +326,9 @@ export function startScheduler(bot: TelegramBot): void {
     }
   });
 
-  // Schedule today's iftar message
-  scheduleIftarMessage(bot);
-
-  // Every midnight Almaty (19:00 UTC) reschedule iftar for the new day
-  cron.schedule("0 19 * * *", () => {
-    scheduleIftarMessage(bot);
-  });
+  // Ramadan-only: iftar message — disabled after Ramadan 2026
+  // scheduleIftarMessage(bot);
+  // cron.schedule("0 19 * * *", () => { scheduleIftarMessage(bot); });
 
   console.log("🕐 Scheduler started:");
   console.log("   Morning         → 07:00 Almaty (02:00 UTC)");
