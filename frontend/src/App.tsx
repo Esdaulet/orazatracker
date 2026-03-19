@@ -20,8 +20,26 @@ import AsmaAlHusna from "./pages/AsmaAlHusna";
 import FirstThreeNames from "./pages/FirstThreeNames";
 import Quiz from "./pages/Quiz";
 import KadirNight from "./pages/KadirNight";
+import RamadanResults from "./pages/RamadanResults";
 import RouteTracker from "./components/RouteTracker";
 import Dashboard from "./pages/Dashboard";
+import { useNavigate, useLocation } from "react-router-dom";
+
+function RamadanResultsGate() {
+  const user = useAuthStore((state) => state.user);
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  useEffect(() => {
+    if (!user) return;
+    const seen = localStorage.getItem("ramadan2026_results_seen");
+    if (!seen && location.pathname !== "/ramadan-results") {
+      navigate("/ramadan-results", { replace: true });
+    }
+  }, [user, navigate, location.pathname]);
+
+  return null;
+}
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
@@ -94,6 +112,7 @@ function App() {
   return (
     <Router>
       <RouteTracker />
+      <RamadanResultsGate />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -194,16 +213,21 @@ function App() {
           }
         />
         <Route
+          path="/ramadan-results"
+          element={
+            <ProtectedRoute>
+              <RamadanResults />
+            </ProtectedRoute>
+          }
+        />
+        <Route
           path="/"
           element={
             <Navigate
               to={(() => {
-                const now = new Date();
-                const tomorrow = new Date(now);
-                tomorrow.setDate(tomorrow.getDate() + 1);
-                tomorrow.setHours(6, 0, 0, 0);
-
-                return now < tomorrow ? "/dashboard" : "/dashboard";
+                const seen = localStorage.getItem("ramadan2026_results_seen");
+                if (!seen) return "/ramadan-results";
+                return "/dashboard";
               })()}
               replace
             />

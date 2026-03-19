@@ -8,9 +8,9 @@ const RAMADAN_START = "2026-02-19";
 const RAMADAN_END = "2026-03-19";
 
 // GET /ramadan-results — personal Ramadan summary for current user
-router.get("/", authMiddleware, async (_req: AuthRequest, res: Response): Promise<void> => {
+router.get("/", authMiddleware, async (req: AuthRequest, res: Response): Promise<void> => {
   try {
-    const userId = (res.locals as any).userId;
+    const userId = req.userId!;
 
     const [userProgressSnap, categoriesSnap, quizSnap] = await Promise.all([
       db.ref(`progress/${userId}`).get(),
@@ -92,7 +92,7 @@ router.get("/", authMiddleware, async (_req: AuthRequest, res: Response): Promis
       .filter(Boolean)
       .sort((a: any, b: any) => b.total - a.total);
 
-    // Category nominations — who has the most per category across all users
+    // Category nominations — who has the most per category across all users (full Ramadan)
     const [allProgressSnap, usersSnap] = await Promise.all([
       db.ref("progress").get(),
       db.ref("users").get(),
@@ -100,12 +100,12 @@ router.get("/", authMiddleware, async (_req: AuthRequest, res: Response): Promis
     const allProgress = allProgressSnap.val() || {};
     const users = usersSnap.val() || {};
 
-    const categoryNominations: Record<string, { displayName: string; total: number }> = {};
+    // Step 1: sum per user per category across all Ramadan dates
+    const userCategoryTotals: Record<string, Record<string, number>> = {};
 
     for (const [uid, userProgressData] of Object.entries(allProgress)) {
       const userData = users[uid] as any;
       if (!userData || userData.role === "admin") continue;
-      const displayName = userData.displayName || "User";
 
       const ramadanDatesAll = Object.keys(userProgressData as any).filter(
         (d) => d >= RAMADAN_START && d <= RAMADAN_END
@@ -114,17 +114,25 @@ router.get("/", authMiddleware, async (_req: AuthRequest, res: Response): Promis
       for (const date of ramadanDatesAll) {
         const dayProg = (userProgressData as any)[date] || {};
         for (const [catId, count] of Object.entries(dayProg)) {
-          let total = 0;
+          if (!userCategoryTotals[uid]) userCategoryTotals[uid] = {};
+          if (!userCategoryTotals[uid][catId]) userCategoryTotals[uid][catId] = 0;
           if (Array.isArray(count)) {
-            total = (count as number[]).reduce((a, b) => a + b, 0);
+            userCategoryTotals[uid][catId] += (count as number[]).reduce((a, b) => a + b, 0);
           } else {
-            total = Number(count) || 0;
+            userCategoryTotals[uid][catId] += Number(count) || 0;
           }
-          if (!categoryNominations[catId]) {
-            categoryNominations[catId] = { displayName, total };
-          } else if (total > categoryNominations[catId].total) {
-            categoryNominations[catId] = { displayName, total };
-          }
+        }
+      }
+    }
+
+    // Step 2: find winner per category
+    const categoryNominations: Record<string, { displayName: string; total: number }> = {};
+
+    for (const [uid, catTotals] of Object.entries(userCategoryTotals)) {
+      const displayName = (users[uid] as any)?.displayName || "User";
+      for (const [catId, total] of Object.entries(catTotals)) {
+        if (!categoryNominations[catId] || total > categoryNominations[catId].total) {
+          categoryNominations[catId] = { displayName, total };
         }
       }
     }
