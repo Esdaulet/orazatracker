@@ -259,6 +259,20 @@ export function buildKadirMessage(): string {
   );
 }
 
+export function buildRamadanResultsMessage(): string {
+  const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
+
+  return (
+    `🌙✨ *Рамазан 2026 қорытындысы*\n\n` +
+    `29 күндік сапар аяқталды… 🤍\n` +
+    `Бұл ай — ізгі амалдар, зікірлер мен дұғаларға толы болды.\n\n` +
+    `📊 *OrazaApp-та сіздің нәтижелеріңіз дайын!*\n\n` +
+    `👉 Қорытындыңызды қазір көріңіз:\n` +
+    `${APP_URL}\n\n` +
+    `Алла жасаған барлық амалдарыңызды қабыл етсін 🤲`
+  );
+}
+
 export function buildRamadanLast10Message(): string {
   const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
   return (

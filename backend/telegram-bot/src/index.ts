@@ -2,7 +2,7 @@ import dotenv from "dotenv";
 dotenv.config();
 
 import TelegramBot from "node-telegram-bot-api";
-import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage, buildRamadanLast10Message, buildNewFeaturesMessage, buildNewDesignMessage, buildKadirMessage } from "./scheduler";
+import { startScheduler, buildMorningMessage, buildEveningMessage, buildReminderMessage, buildTodaySummary, buildIftarMessage, buildRamadanLast10Message, buildNewFeaturesMessage, buildNewDesignMessage, buildKadirMessage, buildRamadanResultsMessage } from "./scheduler";
 import {
   getAsmaNumbersForToday,
   ASMA_KAZAKH_TRANSLIT,
@@ -117,6 +117,14 @@ bot.onText(/\/ramadan10/, async (msg) => {
   const message = buildRamadanLast10Message();
   await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
   bot.sendMessage(msg.chat.id, "✅ Рамазанның соңғы 10 күн хабары топқа жіберілді!");
+});
+
+// /ramadanresults — announce Ramadan 2026 results to the group
+bot.onText(/\/ramadanresults/, async (msg) => {
+  const groupId = process.env.GROUP_CHAT_ID!;
+  const message = buildRamadanResultsMessage();
+  await bot.sendMessage(groupId, message, { parse_mode: "Markdown" });
+  bot.sendMessage(msg.chat.id, "✅ Рамазан нәтижелері анонсы топқа жіберілді!");
 });
 
 // /kadir — send Kadir night special message to group
