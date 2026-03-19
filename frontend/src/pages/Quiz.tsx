@@ -125,7 +125,7 @@ export default function Quiz() {
   // Back button component
   const BackButton = () => (
     <button
-      onClick={() => navigate("/kadir-night")}
+      onClick={() => navigate("/dashboard")}
       className="flex items-center gap-2 text-white/70 hover:text-white mb-6 transition-colors"
     >
       <ChevronLeft size={20} />

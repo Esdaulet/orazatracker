@@ -11,6 +11,7 @@ import membersRoutes from "./routes/members";
 import referralsRoutes from "./routes/referrals";
 import leaderboardRoutes from "./routes/leaderboard";
 import quizResultsRoutes from "./routes/quizResults";
+import ramadanResultsRoutes from "./routes/ramadanResults";
 
 setGlobalOptions({ maxInstances: 10 });
 
@@ -44,6 +45,7 @@ app.use("/members", membersRoutes);
 app.use("/referrals", referralsRoutes);
 app.use("/leaderboard", leaderboardRoutes);
 app.use("/quiz-results", quizResultsRoutes);
+app.use("/ramadan-results", ramadanResultsRoutes);
 
 // Export as Firebase Cloud Function
 export const api = onRequest(app);

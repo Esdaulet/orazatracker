@@ -80,7 +80,7 @@ export default function Register() {
         isAdmin: storedUser?.isAdmin || false,
       });
       await markMemberAsNew();
-      navigate("/kadir-night");
+      navigate("/dashboard");
     } catch (err: any) {
       if (err.code === "auth/email-already-in-use") {
         setError("Бұл нөмір бұрын тіркелген");

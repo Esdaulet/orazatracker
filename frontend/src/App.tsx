@@ -9,7 +9,6 @@ import { useAuthStore } from "./store/authStore";
 import { getStoredUser, getMyProfile } from "./services/authService";
 import Login from "./pages/Login";
 import Register from "./pages/Register";
-import Dashboard from "./pages/Dashboard";
 import AdminPanel from "./pages/AdminPanel";
 import Profile from "./pages/Profile";
 import CategoryCounter from "./pages/CategoryCounter";
@@ -22,6 +21,7 @@ import FirstThreeNames from "./pages/FirstThreeNames";
 import Quiz from "./pages/Quiz";
 import KadirNight from "./pages/KadirNight";
 import RouteTracker from "./components/RouteTracker";
+import Dashboard from "./pages/Dashboard";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const user = useAuthStore((state) => state.user);
@@ -186,14 +186,29 @@ function App() {
           }
         />
         <Route
-          path="/kadir-night"
+          path="/dashboard"
           element={
             <ProtectedRoute>
               <KadirNight />
             </ProtectedRoute>
           }
         />
-        <Route path="/" element={<Navigate to="/kadir-night" replace />} />
+        <Route
+          path="/"
+          element={
+            <Navigate
+              to={(() => {
+                const now = new Date();
+                const tomorrow = new Date(now);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                tomorrow.setHours(6, 0, 0, 0);
+
+                return now < tomorrow ? "/dashboard" : "/dashboard";
+              })()}
+              replace
+            />
+          }
+        />
       </Routes>
     </Router>
   );

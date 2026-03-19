@@ -56,7 +56,7 @@ export default function CategoryCounter() {
 
   useEffect(() => {
     if (!user || !categoryId) {
-      navigate("/kadir-night");
+      navigate("/dashboard");
       return;
     }
     loadData();
@@ -68,7 +68,7 @@ export default function CategoryCounter() {
       const categories = await getCategories();
       const cat = categories.find((c) => c.id === categoryId);
       if (!cat) {
-        navigate("/kadir-night");
+        navigate("/dashboard");
         return;
       }
       setCategory(cat);
@@ -150,7 +150,7 @@ export default function CategoryCounter() {
         {/* Header */}
         <div className="relative z-10 px-4 pt-12 pb-6">
           <button
-            onClick={() => navigate("/kadir-night")}
+            onClick={() => navigate("/dashboard")}
             className="mb-6 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
           >
             <ArrowLeft size={20} />
@@ -224,7 +224,7 @@ export default function CategoryCounter() {
       {/* Header */}
       <div className="relative z-10 px-4 pt-12 pb-6">
         <button
-          onClick={() => navigate("/kadir-night")}
+          onClick={() => navigate("/dashboard")}
           className="mb-6 p-2 rounded-full bg-white/20 backdrop-blur-sm text-white hover:bg-white/30 transition"
         >
           <ArrowLeft size={20} />

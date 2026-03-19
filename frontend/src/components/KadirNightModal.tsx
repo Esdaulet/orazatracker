@@ -8,9 +8,9 @@ interface KadirSlide {
 
 const KADIR_FACTS: KadirSlide[] = [
   {
-    title: "Қадір түнінің артықшылығы",
+    title: "Мың айдың сауабы — бір түнде",
     description:
-      "«Қадір түні мың айдан да қайырлы» (Құран, 97:3)\n\nБұл түнде жасалған құлшылықтың сауабы 83 жылдық (мың ай) үздіксіз ғибадаттан да артық болады.",
+      "Бүгін — уақыт пен кеңістік заңдылықтары тоқтайтын түн. \n\n«Қадір түні мың айдан да қайырлы» (97:3). Бұл дегеніміз — бүгінгі бір түн бүкіл саналы ғұмырыңызға (83 жылға) татиды деген сөз.\n\nСіз жай ғана түн өткізіп жатқан жоқсыз, сіз бүкіл өміріңіздің тағдырын өзгертетін мүмкіндіктің үстінде тұрсыз. ✨",
   },
   {
     title: "Құран түсірілген түн",
@@ -61,11 +61,15 @@ export default function KadirNightModal({
   if (!isOpen) return null;
 
   const handleNextSlide = () => {
-    setCurrentSlide((prev) => (prev + 1) % KADIR_FACTS.length);
+    if (currentSlide < KADIR_FACTS.length - 1) {
+      setCurrentSlide((prev) => prev + 1);
+    }
   };
 
   const handlePrevSlide = () => {
-    setCurrentSlide((prev) => (prev === 0 ? KADIR_FACTS.length - 1 : prev - 1));
+    if (currentSlide > 0) {
+      setCurrentSlide((prev) => prev - 1);
+    }
   };
 
   const handleTouchStart = (e: React.TouchEvent) => {
