@@ -8,10 +8,11 @@ import {
 import {
   getAllLeaderboards,
   type LeaderboardData,
+  type SprintLeaderboardData,
 } from "../services/leaderboardService";
 import BottomNav from "../components/BottomNav";
 import Avatar from "../components/Avatar";
-import { Heart, Flame, Brain } from "lucide-react";
+import { Heart, Brain, Zap, Flame } from "lucide-react";
 import type { LeaderboardEntry } from "../services/leaderboardService";
 
 interface CommunityMember {
@@ -48,14 +49,29 @@ export default function CommunityProgress() {
   const [members, setMembers] = useState<CommunityMember[]>([]);
   const [marathonLeaderboard, setMarathonLeaderboard] =
     useState<LeaderboardData>({ topList: [], userRank: null });
+  const [sprintLeaderboard, setSprintLeaderboard] =
+    useState<SprintLeaderboardData>({
+      topList: [],
+      userRank: null,
+      daysRemaining: 0,
+      weekStart: "",
+      weekEnd: "",
+    });
   const [quizLeaderboard, setQuizLeaderboard] = useState<LeaderboardData>({
     topList: [],
     userRank: null,
   });
   const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState<
-    "progress" | "asma" | "marathon" | "quiz"
-  >((location.state as { tab?: string })?.tab as "progress" | "asma" | "marathon" | "quiz" || "progress");
+    "progress" | "asma" | "marathon" | "sprint" | "quiz"
+  >(
+    ((location.state as { tab?: string })?.tab as
+      | "progress"
+      | "asma"
+      | "marathon"
+      | "sprint"
+      | "quiz") || "sprint",
+  );
 
   const today = new Date().toISOString().split("T")[0];
 
@@ -80,6 +96,7 @@ export default function CommunityProgress() {
       ]);
       setMembers(progressData);
       setMarathonLeaderboard(leaderboards.marathon);
+      setSprintLeaderboard(leaderboards.sprint);
       setQuizLeaderboard(leaderboards.quiz);
     } catch (error) {
       console.error("Деректерді жүктеу кезінде қате:", error);
@@ -179,14 +196,19 @@ export default function CommunityProgress() {
         <div className="flex">
           {[
             { id: "progress", label: "Бүгін" },
-            { id: "marathon", label: "Марафон", icon: <Flame size={15} /> },
+            { id: "sprint", label: "Спринт", icon: <Zap size={15} /> },
             { id: "quiz", label: "Куиз", icon: <Brain size={15} /> },
           ].map((tab) => (
             <button
               key={tab.id}
               onClick={() =>
                 setActiveTab(
-                  tab.id as "progress" | "asma" | "marathon" | "quiz",
+                  tab.id as
+                    | "progress"
+                    | "asma"
+                    | "marathon"
+                    | "sprint"
+                    | "quiz",
                 )
               }
               className={`flex-1 py-3.5 flex items-center justify-center gap-1 text-sm font-semibold border-b-2 transition-all ${
@@ -280,6 +302,103 @@ export default function CommunityProgress() {
                 "Жақсылықта жарысқан жан — нағыз табысқа жетеді."
               </p>
             </div>
+          </>
+        )}
+
+        {/* Tab: Sprint */}
+        {activeTab === "sprint" && loading && (
+          <>
+            <div
+              className="rounded-2xl p-4 mb-2"
+              style={{
+                background: "rgba(234,179,8,0.15)",
+                border: "1px solid rgba(234,179,8,0.3)",
+              }}
+            >
+              <div className="h-5 w-36 bg-white/20 rounded animate-pulse mb-2" />
+              <div className="h-4 w-52 bg-white/15 rounded animate-pulse mb-2" />
+              <div className="h-6 w-40 bg-yellow-400/20 rounded-full animate-pulse" />
+            </div>
+            {[1, 2, 3, 4, 5].map((i) => (
+              <div
+                key={i}
+                className="flex items-center gap-3 p-3 rounded-xl"
+                style={glassLight}
+              >
+                <div className="w-8 h-6 bg-white/20 rounded animate-pulse" />
+                <div className="w-10 h-10 rounded-full bg-white/20 animate-pulse flex-shrink-0" />
+                <div className="flex-1">
+                  <div className="h-4 w-28 bg-white/20 rounded animate-pulse" />
+                </div>
+                <div className="h-5 w-6 bg-white/20 rounded animate-pulse" />
+              </div>
+            ))}
+          </>
+        )}
+
+        {activeTab === "sprint" && !loading && (
+          <>
+            <div
+              className="rounded-2xl p-4 mb-2"
+              style={{
+                background: "rgba(234,179,8,0.15)",
+                border: "1px solid rgba(234,179,8,0.3)",
+              }}
+            >
+              <h3 className="font-bold text-white mb-1 flex items-center gap-2">
+                <Zap size={18} className="text-yellow-400" /> Апталық спринт
+              </h3>
+              <p className="text-sm text-white/80">
+                Осы аптада толық орындалған күндер (дүйсенбі – жексенбі)
+              </p>
+              {sprintLeaderboard.daysRemaining > 0 && (
+                <div
+                  className="mt-2 inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold"
+                  style={{
+                    background: "rgba(234,179,8,0.25)",
+                    color: "#fde68a",
+                    border: "1px solid rgba(234,179,8,0.4)",
+                  }}
+                >
+                  ⏳ Аптаның соңына дейін {sprintLeaderboard.daysRemaining} күн
+                  қалды
+                </div>
+              )}
+            </div>
+            {sprintLeaderboard.topList.length === 0 ? (
+              <div className="rounded-2xl p-8 text-center" style={glass}>
+                <Zap size={40} className="mx-auto mb-3 text-white/30" />
+                <p className="text-white font-medium">Әлі деректер жоқ</p>
+                <p className="text-white/40 text-sm mt-1">Бүгін бастаңыз!</p>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {sprintLeaderboard.topList.map((entry) => (
+                  <LeaderboardCard
+                    key={entry.userId}
+                    entry={entry}
+                    isUserRank={entry.userId === user?.uid}
+                  />
+                ))}
+                {sprintLeaderboard.userRank &&
+                  !sprintLeaderboard.topList.find(
+                    (e) => e.userId === sprintLeaderboard.userRank?.userId,
+                  ) && (
+                    <div
+                      className="mt-4 pt-4"
+                      style={{ borderTop: "1px solid rgba(255,255,255,0.1)" }}
+                    >
+                      <p className="text-sm text-white/50 mb-2 font-semibold">
+                        Сіздің орныңыз
+                      </p>
+                      <LeaderboardCard
+                        entry={sprintLeaderboard.userRank}
+                        isUserRank
+                      />
+                    </div>
+                  )}
+              </div>
+            )}
           </>
         )}
 
@@ -381,7 +500,9 @@ export default function CommunityProgress() {
           </>
         )}
 
-        {(activeTab === "marathon" || activeTab === "quiz") && (
+        {(activeTab === "sprint" ||
+          activeTab === "marathon" ||
+          activeTab === "quiz") && (
           <div
             className="rounded-2xl p-4 text-center"
             style={{

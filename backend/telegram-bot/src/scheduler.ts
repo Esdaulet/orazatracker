@@ -9,7 +9,16 @@ import {
 import { getTodayMaghrib } from "./prayerTimes";
 
 const GROUP_CHAT_ID = process.env.GROUP_CHAT_ID!;
+const CHANNEL_CHAT_ID = process.env.CHANNEL_CHAT_ID || ""; // Telegram channel ID
 const APP_URL = process.env.APP_URL || "https://orazaapp.web.app";
+
+// Send to both group and channel
+async function broadcast(bot: TelegramBot, message: string): Promise<void> {
+  await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
+  if (CHANNEL_CHAT_ID) {
+    await bot.sendMessage(CHANNEL_CHAT_ID, message, { parse_mode: "Markdown" });
+  }
+}
 
 // Build morning message — motivational start of day
 export function buildMorningMessage(): string {
@@ -296,8 +305,7 @@ export function startScheduler(bot: TelegramBot): void {
   // Morning: 07:00 Almaty (UTC+5) = 02:00 UTC
   cron.schedule("0 2 * * *", async () => {
     try {
-      const message = buildMorningMessage();
-      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
+      await broadcast(bot, buildMorningMessage());
       console.log("✅ Morning message sent:", new Date().toISOString());
     } catch (error) {
       console.error("❌ Morning message failed:", error);
@@ -307,8 +315,7 @@ export function startScheduler(bot: TelegramBot): void {
   // Midday reminder: 13:00 Almaty (UTC+5) = 08:00 UTC
   cron.schedule("0 8 * * *", async () => {
     try {
-      const message = buildReminderMessage();
-      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
+      await broadcast(bot, buildReminderMessage());
       console.log("✅ Midday reminder sent:", new Date().toISOString());
     } catch (error) {
       console.error("❌ Midday reminder failed:", error);
@@ -318,8 +325,7 @@ export function startScheduler(bot: TelegramBot): void {
   // Night summary: 23:00 Almaty (UTC+5) = 18:00 UTC
   cron.schedule("0 18 * * *", async () => {
     try {
-      const message = await buildTodaySummary();
-      await bot.sendMessage(GROUP_CHAT_ID, message, { parse_mode: "Markdown" });
+      await broadcast(bot, await buildTodaySummary());
       console.log("✅ Night summary sent:", new Date().toISOString());
     } catch (error) {
       console.error("❌ Night summary failed:", error);

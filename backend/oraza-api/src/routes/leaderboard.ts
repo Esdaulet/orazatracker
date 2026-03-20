@@ -1,6 +1,6 @@
-import { Router, Request, Response } from "express";
+import { Router, Response } from "express";
 import { db } from "../utils/firebase";
-import { authMiddleware } from "../middleware/auth";
+import { authMiddleware, AuthRequest } from "../middleware/auth";
 
 const router = Router();
 
@@ -46,11 +46,11 @@ function buildTopList(
 
 // GET /leaderboard/all — returns all 3 leaderboards in one request
 router.get("/all", authMiddleware, async (
-  _req: Request,
+  req: AuthRequest,
   res: Response
 ): Promise<void> => {
   try {
-    const userId = (res.locals as any).userId;
+    const userId = req.userId!;
 
     // Read all data once
     const [usersSnap, categoriesSnap, allProgressSnap, allQuizSnap] = await Promise.all([
@@ -71,8 +71,23 @@ router.get("/all", authMiddleware, async (
     );
     const asmasCategoryId = firstThreeNamesEntry ? firstThreeNamesEntry[0] : null;
 
+    // Current week bounds (Monday–Sunday, Almaty UTC+5)
+    const nowUtc = new Date();
+    const almatyOffset = 5 * 60 * 60 * 1000;
+    const nowAlmaty = new Date(nowUtc.getTime() + almatyOffset);
+    const dow = nowAlmaty.getUTCDay(); // 0=Sun
+    const diffToMon = dow === 0 ? -6 : 1 - dow;
+    const weekStart = new Date(nowAlmaty);
+    weekStart.setUTCDate(nowAlmaty.getUTCDate() + diffToMon);
+    const weekStartStr = weekStart.toISOString().slice(0, 10);
+    const weekEnd = new Date(weekStart);
+    weekEnd.setUTCDate(weekStart.getUTCDate() + 6);
+    const weekEndStr = weekEnd.toISOString().slice(0, 10);
+    const daysRemaining = 7 - (dow === 0 ? 7 : dow - 1) - 1; // days left after today
+
     const asmaScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
     const marathonScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
+    const sprintScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
     const quizScores: { userId: string; displayName: string; photoURL?: string; score: number }[] = [];
 
     for (const [uid, userData] of Object.entries(users)) {
@@ -112,12 +127,38 @@ router.get("/all", authMiddleware, async (
 
         const allDone = activeCatIds.every((catId) => {
           const count = (dayProgress as any)[catId];
+          if (Array.isArray(count)) return true; // array-type categories (e.g. asma) are not required
           const cat = categories[catId] as any;
           return count !== undefined && Number(count) >= cat.target;
         });
         if (allDone) completedDays++;
       }
-      marathonScores.push({ userId: uid, displayName, photoURL, score: completedDays });
+      // Manual overrides for marathon scores
+      const MARATHON_OVERRIDES: Record<string, number> = {
+        "user_1771481082260_uxu20": 16, // Еса
+      };
+      const finalMarathonScore = MARATHON_OVERRIDES[uid] ?? completedDays;
+      marathonScores.push({ userId: uid, displayName, photoURL, score: finalMarathonScore });
+
+      // Sprint: completed days in current week (Mon–Sun)
+      let sprintDays = 0;
+      for (const [dateStr, dayProgress] of Object.entries(userProgress)) {
+        if (dateStr < weekStartStr || dateStr > weekEndStr) continue;
+        if (Object.keys(dayProgress as any).length === 0) continue;
+        const dayEndTimestamp = new Date(dateStr).getTime() + 86400000;
+        const activeCatIds = Object.entries(categories)
+          .filter(([_, cat]: [string, any]) => ((cat.createdAt as number) || 0) <= dayEndTimestamp)
+          .map(([catId]) => catId);
+        if (activeCatIds.length === 0) continue;
+        const allDone = activeCatIds.every((catId) => {
+          const count = (dayProgress as any)[catId];
+          if (Array.isArray(count)) return true;
+          const cat = categories[catId] as any;
+          return count !== undefined && Number(count) >= cat.target;
+        });
+        if (allDone) sprintDays++;
+      }
+      sprintScores.push({ userId: uid, displayName, photoURL, score: sprintDays });
 
       // Quiz: sum of correct answers across all attempts
       let totalScore = 0;
@@ -133,6 +174,7 @@ router.get("/all", authMiddleware, async (
     res.json({
       asma: buildTopList(asmaScores, userId),
       marathon: buildTopList(marathonScores, userId),
+      sprint: { ...buildTopList(sprintScores, userId), daysRemaining, weekStart: weekStartStr, weekEnd: weekEndStr },
       quiz: buildTopList(quizScores, userId),
     });
   } catch (error) {

@@ -135,5 +135,16 @@ bot.onText(/\/kadir/, async (msg) => {
   bot.sendMessage(msg.chat.id, "✅ Қадр Түнесі анонсы топқа жіберілді!");
 });
 
+// /testchannel — test sending to the channel
+bot.onText(/\/testchannel/, async (msg) => {
+  const channelId = process.env.CHANNEL_CHAT_ID;
+  if (!channelId) {
+    bot.sendMessage(msg.chat.id, "❌ CHANNEL_CHAT_ID env айнымалысы орнатылмаған!");
+    return;
+  }
+  await bot.sendMessage(channelId, "✅ Бот каналға жазуды тексеруде — бәрі жұмыс істейді!", { parse_mode: "Markdown" });
+  bot.sendMessage(msg.chat.id, "✅ Тест хабар каналға жіберілді!");
+});
+
 // Start cron scheduler
 startScheduler(bot);

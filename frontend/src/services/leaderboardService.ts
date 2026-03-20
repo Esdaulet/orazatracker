@@ -14,9 +14,16 @@ export interface LeaderboardData {
   userRank: LeaderboardEntry | null;
 }
 
+export interface SprintLeaderboardData extends LeaderboardData {
+  daysRemaining: number;
+  weekStart: string;
+  weekEnd: string;
+}
+
 export interface AllLeaderboards {
   asma: LeaderboardData;
   marathon: LeaderboardData;
+  sprint: SprintLeaderboardData;
   quiz: LeaderboardData;
 }
 
@@ -28,6 +35,6 @@ export async function getAllLeaderboards(): Promise<AllLeaderboards> {
   } catch (error) {
     console.error("Error fetching leaderboards:", error);
     const empty = { topList: [], userRank: null };
-    return { asma: empty, marathon: empty, quiz: empty };
+    return { asma: empty, marathon: empty, sprint: { ...empty, daysRemaining: 0, weekStart: "", weekEnd: "" }, quiz: empty };
   }
 }

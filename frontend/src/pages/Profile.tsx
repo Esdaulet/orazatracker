@@ -14,15 +14,6 @@ import type { ReferralStats, ReferralItem } from "../services/referralService";
 
 const REFERRAL_GUIDE_KEY = "referral_guide_shown";
 
-const RAMADAN_END = new Date(2026, 2, 20); // Mar 20, 2026
-
-function getDaysLeft(): number {
-  const now = new Date();
-  const diff = Math.ceil(
-    (RAMADAN_END.getTime() - now.getTime()) / (1000 * 60 * 60 * 24),
-  );
-  return Math.max(0, diff);
-}
 
 const BG_STYLE = {
   backgroundImage: "url('/masjid1.jpg')",
@@ -203,16 +194,6 @@ export default function Profile() {
           </div>
         </div>
 
-        {/* Ramadan countdown */}
-        <div className="rounded-2xl p-4" style={glassDark}>
-          <h2 className="text-white text-xs font-medium mb-3 uppercase tracking-wide">
-            Рамазан 2026
-          </h2>
-          <div className="flex items-center justify-between py-2">
-            <span className="text-white/70">🌙 Рамазан аяғына дейін</span>
-            <span className="text-white font-bold">{getDaysLeft()} күн</span>
-          </div>
-        </div>
 
         {/* Referral section */}
         {referralLoading ? (
